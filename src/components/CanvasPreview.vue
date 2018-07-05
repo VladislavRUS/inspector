@@ -47,6 +47,10 @@ export default {
       this.moveTimeout = setTimeout(() => { this.isMoving = false; }, 200);
     });
 
+    drawCanvas.addEventListener('click', (event) => {
+      this.$store.commit('saveClickPosition', getCoordinates(event));
+    });
+
     this.loop();
   },
 
@@ -56,17 +60,24 @@ export default {
         const drawCtx = this.$refs.draw.getContext('2d');
         drawCtx.clearRect(0, 0, this.width, this.height);
 
-        const mousePos = this.$store.state.mousePosition;
+        const overLayer = this.$store.getters.overLayer;
 
-        if (mousePos.x && mousePos.y) {
-          const child = this.$store.getters.currentChild;
+        if (overLayer) {
+          this.draw(drawCtx, overLayer);
+        }
 
-          this.draw(drawCtx, child);
+        const currentLayer = this.$store.getters.currentLayer;
 
-          // this.$store.state.tree.children.forEach((child) => {
-          //   this.draw(drawCtx, child);
-          // });
-          // const child = this.$store.getters.currentChild;
+        if (currentLayer) {
+          this.draw(drawCtx, currentLayer);
+
+          drawCtx.beginPath();
+          drawCtx.moveTo(overLayer.left, overLayer.top);
+          drawCtx.lineTo(currentLayer.left, currentLayer.top);
+          drawCtx.closePath();
+          drawCtx.strokeStyle = 'red';
+          drawCtx.lineWidth = 1;
+          drawCtx.stroke();
         }
       }
 
@@ -80,13 +91,9 @@ export default {
 
       drawCtx.beginPath();
       drawCtx.rect(x, y, width, height);
-      drawCtx.strokeStyle = 'red';
-      drawCtx.lineWidth = 3;
+      drawCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
+      drawCtx.lineWidth = 2; // eslint-disable-line
       drawCtx.stroke();
-
-      if (child.children) {
-        child.children.forEach(c => this.draw(drawCtx, c));
-      }
     },
   },
 };
@@ -102,6 +109,7 @@ export default {
 
   canvas {
     position: absolute;
+    box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
   }
 
 </style>

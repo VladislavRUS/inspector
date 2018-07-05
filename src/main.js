@@ -25,25 +25,34 @@ function getSquare(element) {
   return width * height;
 }
 
-function getCurrentChild(plainList, mousePosition) {
+function getCurrentLayer(plainList, mousePosition) {
   const { x, y } = mousePosition;
 
-  const overChildren = plainList.filter((element) => {
+  if (!x || !y) {
+    return null;
+  }
+
+  const overLayers = plainList.filter((element) => {
     const { top, right, bottom, left } = element;
 
     return x >= left && x <= right && y >= top && y <= bottom;
   }).sort((first, second) => getSquare(first) - getSquare(second));
 
-  return overChildren[0];
+  return overLayers[0];
 }
 
 const store = new Vuex.Store({
   state: {
     imagePath: '',
     tree: null,
+    currentLayer: null,
     plainList: [],
     apiHost: 'http://localhost:4200',
     mousePosition: {
+      x: null,
+      y: null,
+    },
+    clickPosition: {
       x: null,
       y: null,
     },
@@ -57,13 +66,13 @@ const store = new Vuex.Store({
     saveMousePosition(state, position) {
       state.mousePosition = position;
     },
+    saveClickPosition(state, payload) {
+      state.clickPosition = payload;
+    },
   },
   getters: {
-    currentChild: (state) => {
-      const child = getCurrentChild(state.plainList, state.mousePosition);
-
-      return child;
-    },
+    overLayer: state => getCurrentLayer(state.plainList, state.mousePosition),
+    currentLayer: state => getCurrentLayer(state.plainList, state.clickPosition),
   },
 });
 
