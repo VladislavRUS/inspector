@@ -1,0 +1,95 @@
+import Vuex from 'vuex';
+import Vue from 'vue';
+import axios from 'axios';
+
+Vue.use(Vuex);
+
+const dfs = (element, visited) => {
+  visited.push(element.id);
+
+  if (element.children) {
+    element.children.forEach((child) => {
+      if (visited.indexOf(child.id) === -1) {
+        dfs(child, visited);
+      }
+    });
+  }
+};
+
+const getPath = (plainList, path) => {
+  const child = path[path.length - 1];
+  const parent = plainList.find((element) => {
+    if (element.children) {
+      return element.children.find(el => el.id === child.id);
+    }
+  });
+
+  if (parent) {
+    path.push(parent);
+    return getPath(plainList, path);
+  }
+};
+
+const getLayerPath = (plainList, layerId) => {
+  let path = [plainList.find(layer => layer.id === layerId)];
+  getPath(plainList, path);
+
+  path.reverse().shift();
+  path = path.map(element => element.name);
+
+  return path.join('/');
+};
+
+const fillPlainList = (plainList, element) => {
+  plainList.push(element);
+
+  if (element.children) {
+    element.children.forEach(child => fillPlainList(plainList, child));
+  }
+};
+
+const store = new Vuex.Store({
+  state: {
+    imagePath: '',
+    layerImagePath: '',
+    fileName: '',
+    tree: null,
+    currentHoverLayerId: null,
+    currentClickedLayerId: null,
+    apiHost: 'http://localhost:4200',
+    plainList: [],
+  },
+  mutations: {
+    saveData(state, { imagePath, tree, fileName }) {
+      state.imagePath = imagePath;
+      state.tree = tree;
+      state.fileName = fileName;
+
+      fillPlainList(state.plainList, state.tree);
+    },
+    saveCurrentHoverLayerId(state, { id }) {
+      state.currentHoverLayerId = id;
+    },
+    saveCurrentClickedLayerId(state, { id }) {
+      state.currentClickedLayerId = id;
+    },
+    saveLayerImagePath(state, { layerImagePath }) {
+      state.layerImagePath = layerImagePath;
+      console.log(state.layerImagePath);
+    },
+  },
+  actions: {
+    fetchLayerImage({ state }) {
+      axios.post(`${state.apiHost}/layer-image`, {
+        fileName: state.fileName,
+        layerPath: getLayerPath(state.plainList, state.currentClickedLayerId),
+      }).then((resp) => {
+        this.commit('saveLayerImagePath', { layerImagePath: resp.data.layerImagePath });
+      }).catch((err) => {
+        console.log(err);
+      });
+    },
+  },
+});
+
+export default store;

@@ -1,25 +1,44 @@
 <template>
     <div class="canvas-preview">
-      <canvas ref="preview" :width="width" :height="height"></canvas>
-      <canvas ref="draw" :width="width" :height="height"></canvas>
+      <canvas id="preview-canvas" :width="width" :height="height"></canvas>
+      <canvas id="draw-canvas" :width="width" :height="height"></canvas>
     </div>
 </template>
 
 <script>
+
+function getSquare(element) {
+  const { top, right, bottom, left } = element;
+  const width = right - left;
+  const height = bottom - top;
+  return width * height;
+}
+
+function getCurrentLayer(plainList, mousePosition) {
+  const { x, y } = mousePosition;
+
+  if (!x || !y) {
+    return null;
+  }
+
+  const overLayers = plainList.filter((element) => {
+    const { top, right, bottom, left } = element;
+
+    return x >= left && x <= right && y >= top && y <= bottom;
+  }).sort((first, second) => getSquare(first) - getSquare(second));
+
+  return overLayers[0];
+}
+
 export default {
   name: 'CanvasPreview',
   props: ['imagePath', 'width', 'height'],
-  data() {
-    return {
-      moveTimeout: null,
-      isMoving: false,
-    };
-  },
   mounted() {
-    const previewCanvas = this.$refs.preview;
-    const drawCanvas = this.$refs.draw;
-
+    const previewCanvas = document.getElementById('preview-canvas');
     const previewCtx = previewCanvas.getContext('2d');
+    const drawCanvas = document.getElementById('draw-canvas');
+    this.drawCtx = drawCanvas.getContext('2d');
+
     const image = new Image();
 
     image.src = `${this.$store.state.apiHost}/${this.imagePath}`;
@@ -40,15 +59,23 @@ export default {
     };
 
     drawCanvas.addEventListener('mousemove', (event) => {
-      if (this.moveTimeout) clearTimeout(this.moveTimeout);
-      this.isMoving = true;
-      this.$store.commit('saveMousePosition', getCoordinates(event));
+      const currentHoverLayer =
+        getCurrentLayer(this.$store.state.plainList, getCoordinates(event));
+      this.$store.commit('saveCurrentHoverLayerId', { id: currentHoverLayer.id });
+    });
 
-      this.moveTimeout = setTimeout(() => { this.isMoving = false; }, 200);
+    drawCanvas.addEventListener('mouseleave', () => {
+      this.$store.commit('saveCurrentHoverLayerId', { id: null });
     });
 
     drawCanvas.addEventListener('click', (event) => {
-      this.$store.commit('saveClickPosition', getCoordinates(event));
+      const currentClickedLayer =
+        getCurrentLayer(this.$store.state.plainList, getCoordinates(event));
+      this.$store.commit('saveCurrentClickedLayerId', { id: currentClickedLayer.id });
+
+      if (currentClickedLayer.type === 'layer') {
+        this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
+      }
     });
 
     this.loop();
@@ -56,44 +83,36 @@ export default {
 
   methods: {
     loop() {
-      if (this.isMoving) {
-        const drawCtx = this.$refs.draw.getContext('2d');
-        drawCtx.clearRect(0, 0, this.width, this.height);
+      this.drawCtx.clearRect(0, 0, this.width, this.height);
 
-        const overLayer = this.$store.getters.overLayer;
+      if (this.$store.state.currentHoverLayerId) {
+        const layer =
+          this.$store.state.plainList.find(
+            item => item.id === this.$store.state.currentHoverLayerId);
 
-        if (overLayer) {
-          this.draw(drawCtx, overLayer);
-        }
-
-        const currentLayer = this.$store.getters.currentLayer;
-
-        if (currentLayer) {
-          this.draw(drawCtx, currentLayer);
-
-          drawCtx.beginPath();
-          drawCtx.moveTo(overLayer.left, overLayer.top);
-          drawCtx.lineTo(currentLayer.left, currentLayer.top);
-          drawCtx.closePath();
-          drawCtx.strokeStyle = 'red';
-          drawCtx.lineWidth = 1;
-          drawCtx.stroke();
-        }
+        this.draw(layer);
       }
 
+      if (this.$store.state.currentClickedLayerId) {
+        const layer =
+          this.$store.state.plainList.find(
+            item => item.id === this.$store.state.currentClickedLayerId);
+
+        this.draw(layer);
+      }
       requestAnimationFrame(this.loop);
     },
-    draw(drawCtx, child) {
+    draw(child) {
       const x = child.left;
       const y = child.top;
       const width = child.right - x;
       const height = child.bottom - y;
 
-      drawCtx.beginPath();
-      drawCtx.rect(x, y, width, height);
-      drawCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
-      drawCtx.lineWidth = 2; // eslint-disable-line
-      drawCtx.stroke();
+      this.drawCtx.beginPath();
+      this.drawCtx.rect(x, y, width, height);
+      this.drawCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
+      this.drawCtx.lineWidth = 2; // eslint-disable-line
+      this.drawCtx.stroke();
     },
   },
 };

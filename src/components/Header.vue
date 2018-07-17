@@ -11,7 +11,7 @@ export default {
 <style scoped>
   .header {
     position: fixed;
-    background-color: #fff;
+    background-color: #2E2E2E;
     height: 50px;
     top: 0;
     right: 0;

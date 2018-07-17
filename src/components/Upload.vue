@@ -22,6 +22,15 @@
 import vue2Dropzone from 'vue2-dropzone';
 import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 import SyncLoader from 'vue-spinner/src/SyncLoader';
+import UUID from 'uuid/v1';
+
+const setUUID = (element) => {
+  element.id = UUID();
+
+  if (element.children) {
+    element.children.forEach(child => setUUID(child));
+  }
+};
 
 export default {
   name: 'Upload',
@@ -39,8 +48,10 @@ export default {
   },
   methods: {
     onSuccess(event) {
-      const { imagePath, tree } = JSON.parse(event.xhr.response);
-      this.$store.commit('saveData', { imagePath, tree });
+      const { imagePath, tree, fileName } = JSON.parse(event.xhr.response);
+      setUUID(tree);
+
+      this.$store.commit('saveData', { imagePath, tree, fileName });
       this.$router.push('/viewer');
     },
   },
@@ -56,6 +67,8 @@ export default {
   #dropzone {
     height: 100%;
     padding: 200px;
+    background-color: #2E2E2E;
+    color: white;
   }
 
   .dropzone .dz-message {
@@ -64,8 +77,11 @@ export default {
   }
 
   .upload {
-    height: 100%;
-    padding: 50px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -16,15 +16,28 @@ export default {
 
 <style lang="less">
 
+
   .app {
+    width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
   }
 
   body {
-    height: 100vh;
-    background-color: #F0F0F0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #171717;
     font-family: 'Lato', sans-serif;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  ul {
+    padding: 0;
   }
 </style>
