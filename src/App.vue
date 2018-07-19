@@ -16,6 +16,13 @@ export default {
 
 <style lang="less">
 
+  .toast-custom {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    background-color: #00BC87 !important;
+    font-family: 'Lato', sans-serif !important;
+    width: 200px !important;
+  }
 
   .app {
     width: 100%;
@@ -28,7 +35,7 @@ export default {
     right: 0;
     top: 0;
     bottom: 0;
-    background-color: #171717;
+    background-color: #F0F0F0;
     font-family: 'Lato', sans-serif;
   }
 

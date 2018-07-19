@@ -3,11 +3,13 @@
 
 import 'normalize.css';
 import Vue from 'vue';
+import Toasted from 'vue-toasted';
 import App from './App';
 import router from './router';
 import store from './store';
 
 Vue.config.productionTip = false;
+Vue.use(Toasted);
 
 /* eslint-disable no-new */
 new Vue({

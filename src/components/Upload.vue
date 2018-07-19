@@ -37,7 +37,7 @@ export default {
   data() {
     return {
       dropzoneOptions: {
-        url: `${this.$store.state.apiHost}/upload`,
+        url: `/api/upload`,
         maxFilesize: 40,
         method: 'post',
         previewsContainer: false,
@@ -67,8 +67,13 @@ export default {
   #dropzone {
     height: 100%;
     padding: 200px;
-    background-color: #2E2E2E;
-    color: white;
+    background-color: #FFF;
+    border: 2px dashed #A0A0A0;
+    color: #A0A0A0;
+
+    &:hover {
+      background-color: #DADADA;
+    }
   }
 
   .dropzone .dz-message {

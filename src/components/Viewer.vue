@@ -49,19 +49,22 @@ export default {
       position: absolute;
       left: 20px;
       top: 100px;
+      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
     }
 
     &__canvas-preview {
       position: absolute;
       left: 50%;
-      top: 20px;
+      top: 100px;
       transform: translateX(-50%);
+      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
     }
 
     &__export-preview {
       position: absolute;
       top: 100px;
       right: 20px;
+      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
     }
   }
 </style>

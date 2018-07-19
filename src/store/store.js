@@ -50,13 +50,14 @@ const fillPlainList = (plainList, element) => {
 
 const store = new Vuex.Store({
   state: {
+    loading: false,
     imagePath: '',
     layerImagePath: '',
+    color: null,
     fileName: '',
     tree: null,
     currentHoverLayerId: null,
     currentClickedLayerId: null,
-    apiHost: 'http://localhost:4200',
     plainList: [],
   },
   mutations: {
@@ -75,18 +76,25 @@ const store = new Vuex.Store({
     },
     saveLayerImagePath(state, { layerImagePath }) {
       state.layerImagePath = layerImagePath;
-      console.log(state.layerImagePath);
+    },
+    saveLayerAverageColor(state, { color }) {
+      state.color = color;
     },
   },
   actions: {
     fetchLayerImage({ state }) {
-      axios.post(`${state.apiHost}/layer-image`, {
+      state.loading = true;
+
+      axios.post('/api/layer-image', {
         fileName: state.fileName,
         layerPath: getLayerPath(state.plainList, state.currentClickedLayerId),
       }).then((resp) => {
         this.commit('saveLayerImagePath', { layerImagePath: resp.data.layerImagePath });
+        this.commit('saveLayerAverageColor', { color: resp.data.color });
       }).catch((err) => {
         console.log(err);
+      }).finally(() => {
+        state.loading = false;
       });
     },
   },

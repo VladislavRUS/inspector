@@ -1,7 +1,9 @@
 <template>
     <div class="canvas-preview">
-      <canvas id="preview-canvas" :width="width" :height="height"></canvas>
-      <canvas id="draw-canvas" :width="width" :height="height"></canvas>
+      <div class="canvas-preview__wrapper" v-bind:style="wrapperStyle">
+        <canvas id="preview-canvas"></canvas>
+        <canvas id="draw-canvas"></canvas>
+      </div>
     </div>
 </template>
 
@@ -33,15 +35,25 @@ function getCurrentLayer(plainList, mousePosition) {
 export default {
   name: 'CanvasPreview',
   props: ['imagePath', 'width', 'height'],
+  data() {
+    return {
+      wrapperStyle: {
+        width: `${this.width}px`,
+        height: `${this.height}px`,
+      }
+    }
+  },
   mounted() {
     const previewCanvas = document.getElementById('preview-canvas');
-    const previewCtx = previewCanvas.getContext('2d');
     const drawCanvas = document.getElementById('draw-canvas');
+    this.fitToContainer(previewCanvas);
+    this.fitToContainer(drawCanvas);
+    const previewCtx = previewCanvas.getContext('2d');
     this.drawCtx = drawCanvas.getContext('2d');
 
     const image = new Image();
 
-    image.src = `${this.$store.state.apiHost}/${this.imagePath}`;
+    image.src = `/${this.imagePath}`;
     image.onload = () => previewCtx.drawImage(
       image,
       0,
@@ -82,6 +94,12 @@ export default {
   },
 
   methods: {
+    fitToContainer(canvas) {
+      canvas.style.width ='100%';
+      canvas.style.height='100%';
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    },
     loop() {
       this.drawCtx.clearRect(0, 0, this.width, this.height);
 
@@ -120,15 +138,18 @@ export default {
 
 <style lang="less" scoped>
   .canvas-preview {
-    padding: 50px;
-    padding-top: 100px;
-    display: flex;
-    justify-content: center;
+    position: relative;
+    
+    &__wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
   }
 
   canvas {
+    display: block;
     position: absolute;
-    box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
   }
 
 </style>

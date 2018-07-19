@@ -1,7 +1,7 @@
 <template>
     <div class="hierarchy">
         <ul class="hierarchy__list">
-            <hierarchy-item v-for="item in tree.children" :item="item" :key="item.uuid">
+            <hierarchy-item v-for="item in tree.children" :item="item" :key="item.uuid" :level="0">
             </hierarchy-item>
         </ul>
     </div>
@@ -27,13 +27,14 @@ export default {
 
 <style scoped lang="less">
     .hierarchy {
-        background-color: #2E2E2E;
+        background-color: #FFF;
         max-width: 500px;
         min-width: 300px;
 
         &__list {
-            list-style-type: none;
+            margin: 0;
             padding: 0;
+            list-style-type: none;
         }
     }
 </style>
