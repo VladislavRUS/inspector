@@ -12,7 +12,7 @@
       </canvas-preview>
     </div>
 
-    <div class="viewer__export-preview" v-if="this.$store.state.layerImagePath">
+    <div class="viewer__export-preview">
       <export-preview></export-preview>
     </div>
   </div>

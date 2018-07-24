@@ -1,16 +1,17 @@
 <template>
-    <div class="export-preview" v-if="this.item">
-      <div class="export-preview__image" v-if="!item.text">
+    <div class="export-preview">
+      <div class="export-preview__color" v-if="color">color</div>
+      <div class="export-preview__image" v-if="item && !item.text">
         <img :src="imageSrc" v-bind:style="styleObject" v-if="!loading"/>
       </div>
 
-      <div class="export-preview__text" v-if="item.text">
+      <div class="export-preview__text" v-if="item && item.text">
         <div class="export-preview__text-value">
           {{item.text.value}}
         </div>
       </div>
 
-      <div class="export-preview__export">
+      <div class="export-preview__export" v-if="item">
         <a class="export-preview__export-btn" v-bind:href="imageSrc" download v-if="!item.text">Export (.png)</a>
         <button class="export-preview__export-btn" @click="copy(item.text.value)" v-if="item.text">Copy text</button>
       </div>
@@ -46,7 +47,6 @@
 </template>
 
 <script>
-import FileSaver from 'file-saver';
 
 export default {
   name: 'ExportPreview',
@@ -58,46 +58,48 @@ export default {
       return `${this.$store.state.layerImagePath}`;
     },
     item() {
-      return this.$store.state.plainList.find(layer => layer.id === this.$store.state.currentClickedLayerId)
+      return this.$store.state.plainList.find(layer => layer.id === this.$store.state.currentClickedLayerId);
+    },
+    color() {
+      return this.$store.state.clickedColor;
     },
     styles() {
-      let styles = [];
+      const styles = [];
 
       styles.push({
         key: 'width',
-        value: `${this.item.width}px`
+        value: `${this.item.width}px`,
       });
 
       styles.push({
         key: 'height',
-        value: `${this.item.height}px`
+        value: `${this.item.height}px`,
       });
 
       if (this.item.text) {
         styles.push({
           key: 'font-family',
-          value: `${this.item.text.font.name}`
+          value: `${this.item.text.font.name}`,
         });
 
         styles.push({
           key: 'font-size',
-          value: `${parseInt(this.item.text.font.sizes[0])}px`
+          value: `${parseInt(this.item.text.font.sizes[0])}px`,
         });
 
         styles.push({
           key: 'color',
-          value: `rgba(${this.$store.state.color.join(',')})`
+          value: `rgba(${this.$store.state.color.join(',')})`,
         });
 
         styles.push({
           key: 'text-align',
-          value: `${this.item.text.font.alignment[0]}`
+          value: `${this.item.text.font.alignment[0]}`,
         });
-
       } else {
         styles.push({
           key: 'background-color',
-          value: `rgba(${this.$store.state.color.join(',')})`
+          value: `rgba(${this.$store.state.color.join(',')})`,
         });
       }
 
@@ -115,12 +117,12 @@ export default {
         height = `${this.item.height}px`;
       }
 
-      const result = { width, height }
+      const result = { width, height };
       return result;
-    }
+    },
   },
   methods: {
-    copy: function(value) {
+    copy(value) {
       const textarea = document.createElement('textarea');
       textarea.value = value;
       textarea.display = 'none';
@@ -130,11 +132,11 @@ export default {
       this.$toasted.show(`Copied: ${value}`, {
         className: 'toast-custom',
         position: 'bottom-right',
-        duration: 2000
+        duration: 2000,
       });
       document.body.removeChild(textarea);
-    }
-  }
+    },
+  },
 };
 </script>
 

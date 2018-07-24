@@ -1,5 +1,6 @@
 <template>
     <div class="hierarchy">
+        <instruments></instruments>
         <ul class="hierarchy__list">
             <hierarchy-item v-for="item in tree.children" :item="item" :key="item.uuid" :level="0">
             </hierarchy-item>
@@ -9,11 +10,13 @@
 
 <script>
 import HierarchyItem from './HierarchyItem';
+import Instruments from './Instruments';
 
 export default {
   name: 'Hierarchy',
   components: {
     HierarchyItem,
+    Instruments,
   },
   data() {
     return {

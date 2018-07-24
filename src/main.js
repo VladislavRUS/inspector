@@ -3,6 +3,7 @@
 
 import 'normalize.css';
 import Vue from 'vue';
+import PortalVue from 'portal-vue';
 import Toasted from 'vue-toasted';
 import App from './App';
 import router from './router';
@@ -10,6 +11,8 @@ import store from './store';
 
 Vue.config.productionTip = false;
 Vue.use(Toasted);
+Vue.use(PortalVue);
+
 
 /* eslint-disable no-new */
 new Vue({

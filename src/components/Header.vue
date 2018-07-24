@@ -15,15 +15,15 @@ export default {
   computed: {
     imageName() {
       let name = '';
-      
+
       if (this.$store.state.imagePath) {
         const lastSlashIdx = this.$store.state.imagePath.lastIndexOf('/');
         name = this.$store.state.imagePath.substring(lastSlashIdx + 1);
       }
 
       return name;
-    }
-  }
+    },
+  },
 };
 </script>
 

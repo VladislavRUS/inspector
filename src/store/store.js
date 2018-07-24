@@ -1,6 +1,7 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
+import * as Modes from '../constants/modes';
 
 Vue.use(Vuex);
 
@@ -52,8 +53,10 @@ const store = new Vuex.Store({
   state: {
     loading: false,
     imagePath: '',
+    mode: Modes.SELECT_MODE,
     layerImagePath: '',
     color: null,
+    clickedColor: null,
     fileName: '',
     tree: null,
     currentHoverLayerId: null,
@@ -79,6 +82,12 @@ const store = new Vuex.Store({
     },
     saveLayerAverageColor(state, { color }) {
       state.color = color;
+    },
+    saveCurrentClickedColor(state, { color }) {
+      state.clickedColor = color;
+    },
+    setMode(state, { mode }) {
+      state.mode = mode;
     },
   },
   actions: {

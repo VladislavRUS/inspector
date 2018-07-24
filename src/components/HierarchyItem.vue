@@ -33,12 +33,12 @@ export default {
       isOpened: false,
       hasChildren: this.item.children && this.item.children.length > 0,
       styleObject: {
-        paddingLeft: `${parseInt(this.level) * 20}px`
-      }
+        paddingLeft: `${parseInt(this.level, 10) * 20}px`,
+      },
     };
   },
   mounted() {
-      console.log(this.item);
+    console.log(this.item);
   },
   methods: {
     toggleOpened() {

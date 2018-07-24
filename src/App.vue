@@ -2,6 +2,7 @@
   <div class="app">
     <Header/>
     <router-view/>
+    <portal-target name="color-picker"></portal-target>
   </div>
 </template>
 
@@ -46,5 +47,16 @@ export default {
 
   ul {
     padding: 0;
+  }
+
+  .color-picker {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    z-index: 1000;
+    pointer-events: none;
+    border-radius: 50%;
+    border: 1px dashed black;
   }
 </style>
