@@ -1,5 +1,8 @@
 <template>
-    <canvas id="color-picker" v-bind:style="styleObject" :width="w / 2" :height="h / 2"></canvas>
+    <div class="color-picker" v-bind:style="styleObject">
+      <img class="color-picker__cross" src="../assets/cross.svg"/>
+      <canvas id="color-picker" :width="w / 2" :height="h / 2"></canvas>
+    </div>
 </template>
 
 <script>
@@ -33,25 +36,38 @@ export default {
         this.context.putImageData(this.imageData, 0, 0);
       }
 
-      // this.context.beginPath();
-      // this.context.lineWidth = 1;
-      // this.context.fillStyle = 'red';
-      // this.context.arc(this.canvas.width/2, this.canvas.height/2, 0.8, 0, 2 * Math.PI);
-      // this.context.fill();
-
       requestAnimationFrame(this.loop);
     },
   },
 };
 </script>
 
-<style scoped>
-  #color-picker {
+<style scoped lang="less">
+  .color-picker {
     position: absolute;
     width: 50px;
     height: 50px;
     z-index: 10;
-    pointer-events: none;
     border-radius: 50%;
+    box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    pointer-events: none;
+
+    &__cross {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+    }
+
+    & canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
   }
 </style>

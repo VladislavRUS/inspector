@@ -1,6 +1,5 @@
 <template>
     <div class="export-preview">
-      <div class="export-preview__color" v-if="color">color</div>
       <div class="export-preview__image" v-if="item && !item.text">
         <img :src="imageSrc" v-bind:style="styleObject" v-if="!loading"/>
       </div>

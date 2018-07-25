@@ -123,7 +123,10 @@ export default {
 
     drawCanvas.addEventListener('mouseleave', () => {
       this.$store.commit('saveCurrentHoverLayerId', { id: null });
-      // this.isColorPickerVisible = false;
+      
+      if (this.isColorPickerMode) {
+        this.isColorPickerVisible = false;
+      }
     });
 
     drawCanvas.addEventListener('click', (event) => {
@@ -139,8 +142,7 @@ export default {
         const { x, y } = getCoordinates(event);
         const data = previewCtx.getImageData(x, y, 1, 1).data;
         const hex = `#000000${this.rgbToHex(data[0], data[1], data[2])}`.slice(-6);
-        this.$store.commit('saveCurrentClickedLayerId', { id: null });
-        this.$store.commit('saveCurrentClickedColor', { color: hex });
+        this.copyColor(`#${hex}`);
       }
 
     });
@@ -157,6 +159,20 @@ export default {
       canvas.style.height = '100%';
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
+    },
+    copyColor(value) {
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.display = 'none';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      this.$toasted.show(`Copied: ${value}`, {
+        className: 'toast-custom',
+        position: 'bottom-right',
+        duration: 2000,
+      });
+      document.body.removeChild(textarea);
     },
     loop() {
       this.drawCtx.clearRect(0, 0, this.width, this.height);
