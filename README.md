@@ -1,4 +1,4 @@
-![Logo](./src/assets/html-coding.png) 
+![Logo](./src/assets/html-coding.svg) 
 # Marcode
 
 > A free Vue.js based project intended for frontend developers to view PSD designes
