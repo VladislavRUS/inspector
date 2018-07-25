@@ -16,7 +16,9 @@
 <script>
 
 import selectIcon from '../assets/select.png';
+import rulerIcon from '../assets/ruler.svg';
 import colorPickerIcon from '../assets/color-picker.png';
+
 import * as Modes from '../constants/modes';
 
 export default {
@@ -28,6 +30,11 @@ export default {
           title: 'Select',
           icon: selectIcon,
           mode: Modes.SELECT_MODE,
+        },
+        {
+          title: 'Measure',
+          icon: rulerIcon,
+          mode: Modes.MEASURE_MODE,
         },
         {
           title: 'Color picker',
@@ -66,6 +73,7 @@ export default {
           list-style-type: none;
 
           &-item {
+            padding-bottom: 2px;
             width: 30px;
             height: 30px;
             cursor: pointer;

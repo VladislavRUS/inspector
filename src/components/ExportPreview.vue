@@ -11,7 +11,9 @@
       </div>
 
       <div class="export-preview__export" v-if="item">
-        <a class="export-preview__export-btn" v-bind:href="imageSrc" download v-if="!item.text">Export (.png)</a>
+        <a class="export-preview__export-btn" v-bind:href="imageSrc" download v-if="!item.text">
+          Export
+        </a>
         <button class="export-preview__export-btn" @click="copy(item.text.value)" v-if="item.text">Copy text</button>
       </div>
       <div class="export-preview__info">
@@ -265,7 +267,6 @@ export default {
         color: #fff;
         font-weight: bold;
         border-radius: 2px;
-        box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         text-decoration: none;
 
