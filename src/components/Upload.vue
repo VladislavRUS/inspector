@@ -22,22 +22,13 @@
 import vue2Dropzone from 'vue2-dropzone';
 import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 import SyncLoader from 'vue-spinner/src/SyncLoader';
-import UUID from 'uuid/v1';
-
-const setUUID = (element) => {
-  element.id = UUID();
-
-  if (element.children) {
-    element.children.forEach(child => setUUID(child));
-  }
-};
 
 export default {
   name: 'Upload',
   data() {
     return {
       dropzoneOptions: {
-        url: `/api/upload`,
+        url: '/api/upload',
         maxFilesize: 40,
         method: 'post',
         previewsContainer: false,
@@ -49,8 +40,6 @@ export default {
   methods: {
     onSuccess(event) {
       const { imagePath, tree, fileName } = JSON.parse(event.xhr.response);
-      setUUID(tree);
-
       this.$store.commit('saveData', { imagePath, tree, fileName });
       this.$router.push('/viewer');
     },

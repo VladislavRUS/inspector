@@ -1,5 +1,5 @@
 <template>
-  <div class="viewer" v-if="tree">
+  <div class="viewer">
     <div class="viewer__hierarchy">
       <hierarchy></hierarchy>
     </div>
@@ -12,7 +12,7 @@
       </canvas-preview>
     </div>
 
-    <div class="viewer__export-preview">
+    <div class="viewer__export-preview" v-if="appropriateMode">
       <export-preview></export-preview>
     </div>
   </div>
@@ -23,6 +23,7 @@
 import CanvasPreview from './CanvasPreview';
 import Hierarchy from './Hierarchy';
 import ExportPreview from './ExportPreview';
+import * as Modes from '../constants/modes';
 
 export default {
   name: 'Viewer',
@@ -32,6 +33,12 @@ export default {
       imagePath: this.$store.state.imagePath,
       tree: this.$store.state.tree,
     };
+  },
+  computed: {
+    appropriateMode() {
+      return this.$store.state.mode === Modes.SELECT_MODE ||
+      this.$store.state.mode === Modes.MEASURE_MODE;
+    },
   },
   beforeCreate() {
     if (!this.$store.state.imagePath) {

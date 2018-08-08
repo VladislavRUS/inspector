@@ -15,37 +15,9 @@ export default {
 };
 </script>
 
-<style lang="less">
-
-  .toast-custom {
-    font-size: 14px !important;
-    font-weight: bold !important;
-    background-color: #00BC87 !important;
-    font-family: 'Lato', sans-serif !important;
-    width: 200px !important;
-  }
-
+<style lang="less" scoped>
   .app {
     width: 100%;
     height: 100%;
-  }
-
-  body {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: #F0F0F0;
-    font-family: 'Lato', sans-serif;
-  }
-
-  img {
-    width: 100%;
-    height: auto;
-  }
-
-  ul {
-    padding: 0;
   }
 </style>

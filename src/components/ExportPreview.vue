@@ -1,34 +1,51 @@
 <template>
-    <div class="export-preview">
-      <div class="export-preview__image" v-if="item && !item.text">
-        <img :src="imageSrc" v-bind:style="styleObject" v-if="!loading"/>
-      </div>
+  <div class="export-preview">
+    <div class="export-preview__image" v-if="isShowImage">
+      <img :src="imageSrc" v-bind:style="styleObject" v-if="!loading"/>
+    </div>
 
-      <div class="export-preview__text" v-if="item && item.text">
-        <div class="export-preview__text-value">
-          {{item.text.value}}
-        </div>
+    <div class="export-preview__text" v-if="isShowText">
+      <div class="export-preview__text-value">
+        {{item.text.value}}
       </div>
+    </div>
 
-      <div class="export-preview__export" v-if="item">
-        <a class="export-preview__export-btn" v-bind:href="imageSrc" download v-if="!item.text">
-          Export
-        </a>
-        <button class="export-preview__export-btn" @click="copy(item.text.value)" v-if="item.text">Copy text</button>
-      </div>
+    <div class="export-preview__export" v-if="item">
+      <a class="export-preview__export-btn" v-bind:href="imageSrc" download v-if="!item.text">
+        Export
+      </a>
+      <button class="export-preview__export-btn"
+              @click="copy(item.text.value)"
+              v-if="item.text">
+        Copy text
+      </button>
+    </div>
+    <div class="export-preview__info-wrapper" v-if="item">
       <div class="export-preview__info">
         <div class="export-preview__info-item">
           <div class="export-preview__info-title">Size</div>
           <div class="export-preview__info-values">
-              <div class="export-preview__info-value" @click="copy(item.width)">W: {{item.width}}px</div>
-              <div class="export-preview__info-value" @click="copy(item.height)">H: {{item.height}}px</div>
+            <div class="export-preview__info-value"
+                 @click="copy(item.width)">
+              W: {{item.width}}px
+            </div>
+            <div class="export-preview__info-value"
+                 @click="copy(item.height)">
+              H: {{item.height}}px
+            </div>
           </div>
         </div>
         <div class="export-preview__info-item">
           <div class="export-preview__info-title">Position</div>
           <div class="export-preview__info-values">
-            <div class="export-preview__info-value" @click="copy(item.left)">X: {{item.left}}px</div>
-            <div class="export-preview__info-value" @click="copy(item.top)">Y: {{item.top}}px</div>
+            <div class="export-preview__info-value"
+                 @click="copy(item.left)">
+              X: {{item.left}}px
+            </div>
+            <div class="export-preview__info-value"
+                 @click="copy(item.top)">
+              Y: {{item.top}}px
+            </div>
           </div>
         </div>
       </div>
@@ -45,6 +62,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -55,11 +73,17 @@ export default {
     loading() {
       return this.$store.state.loading;
     },
+    isShowImage() {
+      return this.item && !this.item.text;
+    },
+    isShowText() {
+      return this.item && this.item.text;
+    },
     imageSrc() {
       return `${this.$store.state.layerImagePath}`;
     },
     item() {
-      return this.$store.state.plainList.find(layer => layer.id === this.$store.state.currentClickedLayerId);
+      return this.$store.getters.currentClickedLayer;
     },
     color() {
       return this.$store.state.clickedColor;
@@ -90,7 +114,7 @@ export default {
 
         styles.push({
           key: 'color',
-          value: `rgba(${this.$store.state.color.join(',')})`,
+          value: `rgba(${this.$store.getters.color.join(',')})`,
         });
 
         styles.push({
@@ -100,7 +124,7 @@ export default {
       } else {
         styles.push({
           key: 'background-color',
-          value: `rgba(${this.$store.state.color.join(',')})`,
+          value: `rgba(${this.$store.getters.color.join(',')})`,
         });
       }
 
@@ -184,7 +208,6 @@ export default {
           color: #c26bfa;
         }
 
-
         &:last-child {
           margin-left: auto;
         }
@@ -225,7 +248,6 @@ export default {
         }
       }
     }
-
 
     &__text {
       width: 100%;

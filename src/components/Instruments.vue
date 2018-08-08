@@ -50,10 +50,6 @@ export default {
     },
     setMode(mode) {
       this.$store.commit('setMode', { mode });
-
-      if (mode === Modes.COLOR_PICKER_MODE) {
-        this.$store.commit('saveCurrentClickedLayerId', { id: null });
-      }
     },
   },
 };

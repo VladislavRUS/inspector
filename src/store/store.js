@@ -1,21 +1,11 @@
+/* eslint-disable consistent-return */
+import UUID from 'uuid/v1';
 import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
 import * as Modes from '../constants/modes';
 
 Vue.use(Vuex);
-
-const dfs = (element, visited) => {
-  visited.push(element.id);
-
-  if (element.children) {
-    element.children.forEach((child) => {
-      if (visited.indexOf(child.id) === -1) {
-        dfs(child, visited);
-      }
-    });
-  }
-};
 
 const getPath = (plainList, path) => {
   const child = path[path.length - 1];
@@ -49,9 +39,21 @@ const fillPlainList = (plainList, element) => {
   }
 };
 
+const setUUID = (element) => {
+  Object.defineProperty(element, 'id', {
+    value: UUID(),
+    writable: false,
+  });
+
+  if (element.children) {
+    element.children.forEach(child => setUUID(child));
+  }
+};
+
 const store = new Vuex.Store({
   state: {
     loading: false,
+    initialized: false,
     imagePath: '',
     mode: Modes.SELECT_MODE,
     layerImagePath: '',
@@ -66,10 +68,12 @@ const store = new Vuex.Store({
   mutations: {
     saveData(state, { imagePath, tree, fileName }) {
       state.imagePath = imagePath;
-      state.tree = tree;
       state.fileName = fileName;
+      state.tree = tree;
+      setUUID(state.tree);
 
       fillPlainList(state.plainList, state.tree);
+      state.initialized = true;
     },
     saveCurrentHoverLayerId(state, { id }) {
       state.currentHoverLayerId = id;
@@ -90,16 +94,29 @@ const store = new Vuex.Store({
       state.mode = mode;
     },
   },
+  getters: {
+    currentHoverLayer: (state) => {
+      if (state.currentHoverLayerId) {
+        return state.plainList.find(layer => layer.id === state.currentHoverLayerId);
+      }
+    },
+    color: state => (state.color ? state.color : []),
+    currentClickedLayer: (state) => {
+      if (state.currentClickedLayerId) {
+        return state.plainList.find(layer => layer.id === state.currentClickedLayerId);
+      }
+    },
+  },
   actions: {
-    fetchLayerImage({ state }) {
+    fetchLayerImage({ state, commit }) {
       state.loading = true;
 
       axios.post('/api/layer-image', {
         fileName: state.fileName,
         layerPath: getLayerPath(state.plainList, state.currentClickedLayerId),
       }).then((resp) => {
-        this.commit('saveLayerImagePath', { layerImagePath: resp.data.layerImagePath });
-        this.commit('saveLayerAverageColor', { color: resp.data.color });
+        commit('saveLayerImagePath', { layerImagePath: resp.data.layerImagePath });
+        commit('saveLayerAverageColor', { color: resp.data.color });
       }).catch((err) => {
         console.log(err);
       }).finally(() => {

@@ -1,7 +1,7 @@
 <template>
     <div class="color-picker" v-bind:style="styleObject">
       <img class="color-picker__cross" src="../assets/cross.svg"/>
-      <canvas id="color-picker" :width="w / 2" :height="h / 2"></canvas>
+      <canvas ref="colorPickerCanvas" :width="w / 2" :height="h / 2"></canvas>
     </div>
 </template>
 
@@ -24,7 +24,7 @@ export default {
     },
   },
   mounted() {
-    this.canvas = document.getElementById('color-picker');
+    this.canvas = this.$refs.colorPickerCanvas;
     this.context = this.canvas.getContext('2d');
 
     this.loop();

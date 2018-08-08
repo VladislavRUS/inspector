@@ -6,15 +6,22 @@
         :y="colorPickerCoords.y"
         :imageData="imageData"
         :w="colorPickerSize.width"
-        :h="colorPickerSize.height"></color-picker>
+        :h="colorPickerSize.height"/>
       <div class="canvas-preview__wrapper" v-bind:style="wrapperStyle">
-        <canvas id="preview-canvas"></canvas>
-        <canvas id="draw-canvas" v-bind:class="{'_color-picker': mode === 'color-picker'}"></canvas>
+        <canvas ref="previewCanvas"></canvas>
+        <canvas ref="drawCanvas"
+                v-bind:class="{'_color-picker': mode === 'color-picker'}"
+                @mousemove="mouseMove"
+                @mouseenter="mouseEnter"
+                @mouseleave="mouseLeave"
+                @click="mouseClick"></canvas>
       </div>
     </div>
 </template>
 
 <script>
+/* eslint-disable no-param-reassign,no-bitwise */
+
 
 import ColorPicker from './ColorPicker';
 import * as Modes from '../constants/modes';
@@ -57,7 +64,8 @@ export default {
         width: `${this.width}px`,
         height: `${this.height}px`,
       },
-      previewCanvas: null,
+      previewCanvasCtx: null,
+      drawCanvasCtx: null,
       colorPickerCoords: {
         x: 0,
         y: 0,
@@ -72,85 +80,40 @@ export default {
     isColorPickerMode() {
       return this.mode === Modes.COLOR_PICKER_MODE;
     },
+    isSelectMode() {
+      return this.mode === Modes.SELECT_MODE;
+    },
+    isMeasureMode() {
+      return this.mode === Modes.MEASURE_MODE;
+    },
   },
   mounted() {
-    const previewCanvas = document.getElementById('preview-canvas');
-    this.previewCanvas = previewCanvas;
-    const drawCanvas = document.getElementById('draw-canvas');
+    const previewCanvas = this.$refs.previewCanvas;
+    const drawCanvas = this.$refs.drawCanvas;
+
     this.fitToContainer(previewCanvas);
     this.fitToContainer(drawCanvas);
-    const previewCtx = previewCanvas.getContext('2d');
-    this.drawCtx = drawCanvas.getContext('2d');
 
-    const image = new Image();
+    this.previewCanvasCtx = previewCanvas.getContext('2d');
+    this.drawCanvasCtx = drawCanvas.getContext('2d');
 
-    image.src = `/${this.imagePath}`;
-    image.onload = () => previewCtx.drawImage(
-      image,
-      0,
-      0,
-      this.width,
-      this.height);
-
-    const getCoordinates = (event) => {
-      const rect = drawCanvas.getBoundingClientRect();
-
-      return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      };
-    };
-
-    drawCanvas.addEventListener('mousemove', (event) => {
-      if (this.mode === Modes.SELECT_MODE) {
-        const currentHoverLayer =
-          getCurrentLayer(this.$store.state.plainList, getCoordinates(event));
-        this.$store.commit('saveCurrentHoverLayerId', { id: currentHoverLayer.id });
-      } else if (this.mode === Modes.COLOR_PICKER_MODE) {
-        const { x, y } = getCoordinates(event);
-        this.colorPickerCoords.x = x;
-        this.colorPickerCoords.y = y;
-        const context = this.previewCanvas.getContext('2d');
-        this.imageData = context.getImageData(x - (this.colorPickerSize.width/4), y - (this.colorPickerSize.height/4), this.colorPickerSize.width, this.colorPickerSize.height);
-      }
-    });
-
-    drawCanvas.addEventListener('mouseenter', (event) => {
-      if (this.isColorPickerMode) {
-        this.isColorPickerVisible = true;
-      }
-    });
-
-    drawCanvas.addEventListener('mouseleave', () => {
-      this.$store.commit('saveCurrentHoverLayerId', { id: null });
-      
-      if (this.isColorPickerMode) {
-        this.isColorPickerVisible = false;
-      }
-    });
-
-    drawCanvas.addEventListener('click', (event) => {
-      if (this.$store.state.mode === Modes.SELECT_MODE) {
-        const currentClickedLayer =
-          getCurrentLayer(this.$store.state.plainList, getCoordinates(event));
-        this.$store.commit('saveCurrentClickedLayerId', { id: currentClickedLayer.id });
-
-        if (currentClickedLayer.type === 'layer') {
-          this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
-        }
-      } else if (this.$store.state.mode === Modes.COLOR_PICKER_MODE) {
-        const { x, y } = getCoordinates(event);
-        const data = previewCtx.getImageData(x, y, 1, 1).data;
-        const hex = `#000000${this.rgbToHex(data[0], data[1], data[2])}`.slice(-6);
-        this.copyColor(`#${hex}`);
-      }
-
-    });
+    this.drawImage();
 
     this.loop();
   },
 
   methods: {
+    drawImage() {
+      const image = new Image();
+
+      image.src = `/${this.imagePath}`;
+      image.onload = () => this.previewCanvasCtx.drawImage(
+        image,
+        0,
+        0,
+        this.width,
+        this.height);
+    },
     rgbToHex(r, g, b) {
       return ((r << 16) | (g << 8) | b).toString(16);
     },
@@ -159,6 +122,59 @@ export default {
       canvas.style.height = '100%';
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
+    },
+    getCoordinates(event) {
+      const rect = this.$refs.drawCanvas.getBoundingClientRect();
+
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+    },
+    mouseMove(event) {
+      if (this.isSelectMode || this.isMeasureMode) {
+        const currentHoverLayer =
+          getCurrentLayer(this.$store.state.plainList, this.getCoordinates(event));
+        this.$store.commit('saveCurrentHoverLayerId', { id: currentHoverLayer.id });
+      } else if (this.isColorPickerMode) {
+        const { x, y } = this.getCoordinates(event);
+        this.colorPickerCoords.x = x;
+        this.colorPickerCoords.y = y;
+        this.imageData = this.previewCanvasCtx
+          .getImageData(
+            x - (this.colorPickerSize.width / 4),
+            y - (this.colorPickerSize.height / 4),
+            this.colorPickerSize.width,
+            this.colorPickerSize.height);
+      }
+    },
+    mouseEnter() {
+      if (this.isColorPickerMode) {
+        this.isColorPickerVisible = true;
+      }
+    },
+    mouseLeave() {
+      this.$store.commit('saveCurrentHoverLayerId', { id: null });
+
+      if (this.isColorPickerMode) {
+        this.isColorPickerVisible = false;
+      }
+    },
+    mouseClick(event) {
+      if (this.isSelectMode || this.isMeasureMode) {
+        const currentClickedLayer =
+          getCurrentLayer(this.$store.state.plainList, this.getCoordinates(event));
+        this.$store.commit('saveCurrentClickedLayerId', { id: currentClickedLayer.id });
+
+        if (currentClickedLayer.type === 'layer') {
+          this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
+        }
+      } else if (this.isColorPickerMode) {
+        const { x, y } = this.getCoordinates(event);
+        const data = this.previewCanvasCtx.getImageData(x, y, 1, 1).data;
+        const hex = `#000000${this.rgbToHex(data[0], data[1], data[2])}`.slice(-6);
+        this.copyColor(`#${hex}`);
+      }
     },
     copyColor(value) {
       const textarea = document.createElement('textarea');
@@ -175,38 +191,37 @@ export default {
       document.body.removeChild(textarea);
     },
     loop() {
-      this.drawCtx.clearRect(0, 0, this.width, this.height);
+      this.drawCanvasCtx.clearRect(0, 0, this.$refs.drawCanvas.width, this.$refs.drawCanvas.height);
 
-      if (this.mode === 'select') {
-        if (this.$store.state.currentHoverLayerId) {
-          const layer =
-            this.$store.state.plainList.find(
-              item => item.id === this.$store.state.currentHoverLayerId);
+      const currentHoverLayer = this.$store.getters.currentHoverLayer;
+      const currentClickedLayer = this.$store.getters.currentClickedLayer;
 
-          this.draw(layer);
-        }
-
-        if (this.$store.state.currentClickedLayerId) {
-          const layer =
-            this.$store.state.plainList.find(
-              item => item.id === this.$store.state.currentClickedLayerId);
-
-          this.draw(layer);
-        }
+      if (this.isSelectMode || this.isMeasureMode) {
+        this.draw(currentHoverLayer);
+        this.draw(currentClickedLayer);
       }
+
+      if (this.isMeasureMode) {
+
+      }
+
       requestAnimationFrame(this.loop);
     },
     draw(child) {
+      if (!child) {
+        return;
+      }
+
       const x = child.left;
       const y = child.top;
       const width = child.right - x;
       const height = child.bottom - y;
 
-      this.drawCtx.beginPath();
-      this.drawCtx.rect(x, y, width, height);
-      this.drawCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
-      this.drawCtx.lineWidth = 2; // eslint-disable-line
-      this.drawCtx.stroke();
+      this.drawCanvasCtx.beginPath();
+      this.drawCanvasCtx.rect(x, y, width, height);
+      this.drawCanvasCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
+      this.drawCanvasCtx.lineWidth = 2; // eslint-disable-line
+      this.drawCanvasCtx.stroke();
     },
   },
 };
