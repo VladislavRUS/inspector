@@ -198,16 +198,208 @@ export default {
 
       if (this.isSelectMode || this.isMeasureMode) {
         this.draw(currentHoverLayer);
-        this.draw(currentClickedLayer);
+        this.draw(currentClickedLayer, this.isMeasureMode);
       }
 
-      if (this.isMeasureMode) {
+      if (this.isMeasureMode && currentClickedLayer && currentHoverLayer) {
+        const firstCoords = this.getLayerCoordinates(currentHoverLayer);
+        const secondCoords = this.getLayerCoordinates(currentClickedLayer);
 
+        const points = [];
+        points.push(
+          ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+        );
+        points.push(
+          ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+        );
+
+        points.forEach((point) => {
+          this.drawLine(point.start, point.end);
+        });
       }
-
       requestAnimationFrame(this.loop);
     },
-    draw(child) {
+    getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer) {
+      const closesToLeft =
+        this.getClosesSide(
+          firstCoords.x1,
+          secondCoords.x1,
+          secondCoords.x2,
+        );
+
+      const closesToRight =
+        this.getClosesSide(
+          firstCoords.x2,
+          secondCoords.x1,
+          secondCoords.x2,
+        );
+
+      const points = [];
+
+      if (closesToLeft === closesToRight) {
+        if (Math.abs(firstCoords.x1 - closesToLeft) < Math.abs(firstCoords.x2 - closesToLeft)) {
+          points.push({
+            start: { x: firstCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+            end: { x: closesToLeft, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+          });
+
+          if (firstCoords.x2 < secondCoords.x2) {
+            points.push({
+              start: { x: firstCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+              end: { x: secondCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+            });
+          }
+        } else {
+          points.push({
+            start: { x: firstCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+            end: { x: closesToRight, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+          });
+
+          if (firstCoords.x1 > secondCoords.x1) {
+            points.push({
+              start: { x: firstCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+              end: { x: secondCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+            });
+          }
+        }
+      } else {
+        points.push({
+          start: { x: firstCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+          end: { x: closesToLeft, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+        });
+        points.push({
+          start: { x: firstCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+          end: { x: closesToRight, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+        });
+      }
+
+      return points;
+    },
+    getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer) {
+      const closestToTop =
+        this.getClosesSide(
+          firstCoords.y1,
+          secondCoords.y1,
+          secondCoords.y2,
+        );
+
+      const closestToBottom =
+        this.getClosesSide(
+          firstCoords.y2,
+          secondCoords.y1,
+          secondCoords.y2,
+        );
+
+      const points = [];
+
+      if (closestToTop === closestToBottom) {
+        if (Math.abs(firstCoords.y1 - closestToTop) < Math.abs(firstCoords.y2 - closestToTop)) {
+          points.push({
+            start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y1 },
+            end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToTop },
+          });
+
+          if (firstCoords.y2 < secondCoords.y2) {
+            points.push({
+              start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y2 },
+              end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: secondCoords.y2 },
+            });
+          }
+        } else {
+          points.push({
+            start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y2 },
+            end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToBottom },
+          });
+
+          if (firstCoords.y1 > secondCoords.y1) {
+            points.push({
+              start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y1 },
+              end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: secondCoords.y1 },
+            });
+          }
+        }
+      } else {
+        points.push({
+          start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y1 },
+          end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToTop },
+        });
+        points.push({
+          start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y2 },
+          end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToBottom },
+        });
+      }
+
+      return points;
+    },
+    getClosesSide(side, otherFirst, otherSecond) {
+      if (Math.abs(side - otherFirst) > Math.abs(side - otherSecond)) {
+        return otherSecond;
+      }
+      return otherFirst;
+    },
+    getLayerCoordinates(layer) {
+      const { left, top, right, bottom } = layer;
+
+      return {
+        x1: left,
+        y1: top,
+        x2: right,
+        y2: bottom,
+      };
+    },
+    getLayerSides(layer) {
+      const leftSide = {
+        start: {
+          x: layer.left,
+          y: 0,
+        },
+        end: {
+          x: layer.left,
+          y: this.$refs.drawCanvas.height,
+        },
+      };
+
+      const rightSide = {
+        start: {
+          x: layer.right,
+          y: 0,
+        },
+        end: {
+          x: layer.right,
+          y: this.$refs.drawCanvas.height,
+        },
+      };
+
+      const bottomSide = {
+        start: {
+          x: 0,
+          y: layer.bottom,
+        },
+        end: {
+          x: this.$refs.drawCanvas.width,
+          y: layer.bottom,
+        },
+      };
+
+      const topSide = {
+        start: {
+          x: 0,
+          y: layer.top,
+        },
+        end: {
+          x: this.$refs.drawCanvas.width,
+          y: layer.top,
+        },
+      };
+
+      return {
+        top: topSide,
+        right: rightSide,
+        bottom: bottomSide,
+        left: leftSide,
+      };
+    },
+    draw(child, isMeasureMode) {
       if (!child) {
         return;
       }
@@ -219,9 +411,36 @@ export default {
 
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(x, y, width, height);
-      this.drawCanvasCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
+      this.drawCanvasCtx.strokeStyle = isMeasureMode ? '#ff3d3d' : '#41f4cd'; // eslint-disable-line
       this.drawCanvasCtx.lineWidth = 2; // eslint-disable-line
       this.drawCanvasCtx.stroke();
+
+      if (isMeasureMode) {
+        const params = {
+          lineDash: [5, 7],
+        };
+
+        const sides = this.getLayerSides(child);
+
+        this.drawLine(sides.top.start, sides.top.end, params);
+        this.drawLine(sides.right.start, sides.right.end, params);
+        this.drawLine(sides.bottom.start, sides.bottom.end, params);
+        this.drawLine(sides.left.start, sides.left.end, params);
+      }
+    },
+    drawLine(start, end, params = {}) {
+      this.drawCanvasCtx.save();
+      this.drawCanvasCtx.beginPath();
+      this.drawCanvasCtx.moveTo(start.x + 0.5, start.y + 0.5);
+      this.drawCanvasCtx.lineTo(end.x + 0.5, end.y + 0.5);
+      this.drawCanvasCtx.closePath();
+      this.drawCanvasCtx.strokeStyle = params.color || 'red';
+      this.drawCanvasCtx.lineWidth = params.lineWidth || 1;
+      if (params.lineDash) {
+        this.drawCanvasCtx.setLineDash(params.lineDash);
+      }
+      this.drawCanvasCtx.stroke();
+      this.drawCanvasCtx.restore();
     },
   },
 };
