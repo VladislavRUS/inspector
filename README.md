@@ -1,4 +1,4 @@
-# Marcode 
+# Inspector 
 > A free Vue.js based project intended for frontend developers to view PSD designes
 
 ## Getting started
