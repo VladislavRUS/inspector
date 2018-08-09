@@ -215,6 +215,7 @@ export default {
 
         points.forEach((point) => {
           this.drawLine(point.start, point.end);
+          this.drawDistance(point.start, point.end);
         });
       }
       requestAnimationFrame(this.loop);
@@ -404,15 +405,15 @@ export default {
         return;
       }
 
-      const x = child.left;
-      const y = child.top;
-      const width = child.right - x;
-      const height = child.bottom - y;
+      const x = child.left + 0.5;
+      const y = child.top + 0.5;
+      const width = (child.right - x) + 0.5;
+      const height = (child.bottom - y) + 0.5;
 
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(x, y, width, height);
       this.drawCanvasCtx.strokeStyle = isMeasureMode ? '#ff3d3d' : '#41f4cd'; // eslint-disable-line
-      this.drawCanvasCtx.lineWidth = 2; // eslint-disable-line
+      this.drawCanvasCtx.lineWidth = 1; // eslint-disable-line
       this.drawCanvasCtx.stroke();
 
       if (isMeasureMode) {
@@ -434,13 +435,22 @@ export default {
       this.drawCanvasCtx.moveTo(start.x + 0.5, start.y + 0.5);
       this.drawCanvasCtx.lineTo(end.x + 0.5, end.y + 0.5);
       this.drawCanvasCtx.closePath();
-      this.drawCanvasCtx.strokeStyle = params.color || 'red';
-      this.drawCanvasCtx.lineWidth = params.lineWidth || 1;
+      this.drawCanvasCtx.strokeStyle = params.color || '#ff3d3d';
+      this.drawCanvasCtx.lineWidth = 1;
       if (params.lineDash) {
         this.drawCanvasCtx.setLineDash(params.lineDash);
       }
       this.drawCanvasCtx.stroke();
       this.drawCanvasCtx.restore();
+    },
+    drawDistance(start, end, params = {}) {
+      const distance = Math.sqrt(((start.x - end.x) ** 2) + ((start.y - end.y) ** 2));
+      if (distance > 0) {
+        this.drawCanvasCtx.save();
+        this.drawCanvasCtx.font = '12px Verdana';
+        this.drawCanvasCtx.fillStyle = params.textColor || '#ff3d3d';
+        this.drawCanvasCtx.fillText(`${distance}px`, ((start.x + end.x) / 2) + 2, ((start.y + end.y) / 2) - 2);
+      }
     },
   },
 };
