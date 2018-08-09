@@ -7,7 +7,10 @@
         :imageData="imageData"
         :w="colorPickerSize.width"
         :h="colorPickerSize.height"/>
-      <div class="canvas-preview__wrapper" v-bind:style="wrapperStyle">
+        
+
+      <div class="canvas-preview__wrapper" v-bind:style="wrapperStyle" @mousewheel="mouseWheel" v-on:dblclick="reset">
+        <measure-values v-if="isMeasureMode" :points="points" :scaleFactor="scaleFactor" />
         <canvas ref="previewCanvas"></canvas>
         <canvas ref="drawCanvas"
                 v-bind:class="{'_color-picker': mode === 'color-picker'}"
@@ -24,6 +27,7 @@
 
 
 import ColorPicker from './ColorPicker';
+import MeasureValues from './MeasureValues';
 import * as Modes from '../constants/modes';
 
 function getSquare(element) {
@@ -51,7 +55,7 @@ function getCurrentLayer(plainList, mousePosition) {
 
 export default {
   name: 'CanvasPreview',
-  components: { ColorPicker },
+  components: { ColorPicker, MeasureValues },
   props: ['imagePath', 'width', 'height'],
   data() {
     return {
@@ -60,10 +64,6 @@ export default {
         width: 25,
         height: 25,
       },
-      wrapperStyle: {
-        width: `${this.width}px`,
-        height: `${this.height}px`,
-      },
       previewCanvasCtx: null,
       drawCanvasCtx: null,
       colorPickerCoords: {
@@ -71,6 +71,10 @@ export default {
         y: 0,
       },
       imageData: null,
+      points: [],
+      scaleFactor: 1,
+      scaleFactorStep: 0.02,
+      draggableValue: {}
     };
   },
   computed: {
@@ -85,6 +89,16 @@ export default {
     },
     isMeasureMode() {
       return this.mode === Modes.MEASURE_MODE;
+    },
+    isDragMode() {
+      return this.mode === Modes.DRAG_MODE;
+    },
+    wrapperStyle() {
+      return {
+        width: `${this.width}px`,
+        height: `${this.height}px`,
+        transform: `scale(${this.scaleFactor})`
+      }
     },
   },
   mounted() {
@@ -127,9 +141,25 @@ export default {
       const rect = this.$refs.drawCanvas.getBoundingClientRect();
 
       return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
+        x: (event.clientX - rect.left) / this.scaleFactor,
+        y: (event.clientY - rect.top) / this.scaleFactor,
       };
+    },
+    mouseWheel(event) {
+      if (!event.ctrlKey) {
+        return;
+      } else {
+        event.preventDefault();
+      }
+
+      if (event.wheelDelta > 0) {
+        this.scaleFactor -= this.scaleFactorStep;
+      } else {
+        this.scaleFactor += this.scaleFactorStep;
+      }
+    },
+    reset() {
+      this.scaleFactor = 1;
     },
     mouseMove(event) {
       if (this.isSelectMode || this.isMeasureMode) {
@@ -205,20 +235,22 @@ export default {
         const firstCoords = this.getLayerCoordinates(currentHoverLayer);
         const secondCoords = this.getLayerCoordinates(currentClickedLayer);
 
-        const points = [];
-        points.push(
+        this.points = [];
+        
+        this.points.push(
           ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
         );
-        points.push(
+
+        this.points.push(
           ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
         );
 
-        points.forEach((point) => {
+        this.points.forEach((point) => {
           this.drawLine(point.start, point.end);
-          this.drawDistance(point.start, point.end);
         });
       }
-      requestAnimationFrame(this.loop);
+
+      setTimeout(this.loop.bind(this), 50)
     },
     getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer) {
       const closesToLeft =
@@ -236,41 +268,42 @@ export default {
         );
 
       const points = [];
+      const y = firstCoords.y2 - (currentHoverLayer.height / 2);
 
       if (closesToLeft === closesToRight) {
         if (Math.abs(firstCoords.x1 - closesToLeft) < Math.abs(firstCoords.x2 - closesToLeft)) {
           points.push({
-            start: { x: firstCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
-            end: { x: closesToLeft, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+            start: { x: firstCoords.x1, y },
+            end: { x: closesToLeft, y },
           });
 
           if (firstCoords.x2 < secondCoords.x2) {
             points.push({
-              start: { x: firstCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
-              end: { x: secondCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+              start: { x: firstCoords.x2, y },
+              end: { x: secondCoords.x2, y },
             });
           }
         } else {
           points.push({
-            start: { x: firstCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
-            end: { x: closesToRight, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+            start: { x: firstCoords.x2, y },
+            end: { x: closesToRight, y },
           });
 
           if (firstCoords.x1 > secondCoords.x1) {
             points.push({
-              start: { x: firstCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
-              end: { x: secondCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+              start: { x: firstCoords.x1, y },
+              end: { x: secondCoords.x1, y },
             });
           }
         }
       } else {
         points.push({
-          start: { x: firstCoords.x1, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
-          end: { x: closesToLeft, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+          start: { x: firstCoords.x1, y },
+          end: { x: closesToLeft, y },
         });
         points.push({
-          start: { x: firstCoords.x2, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
-          end: { x: closesToRight, y: firstCoords.y2 - (currentHoverLayer.height / 2) },
+          start: { x: firstCoords.x2, y },
+          end: { x: closesToRight, y },
         });
       }
 
@@ -293,40 +326,42 @@ export default {
 
       const points = [];
 
+      const x = firstCoords.x1 + (currentHoverLayer.width / 2);
+
       if (closestToTop === closestToBottom) {
         if (Math.abs(firstCoords.y1 - closestToTop) < Math.abs(firstCoords.y2 - closestToTop)) {
           points.push({
-            start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y1 },
-            end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToTop },
+            start: { x, y: firstCoords.y1 },
+            end: { x, y: closestToTop },
           });
 
           if (firstCoords.y2 < secondCoords.y2) {
             points.push({
-              start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y2 },
-              end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: secondCoords.y2 },
+              start: { x, y: firstCoords.y2 },
+              end: { x, y: secondCoords.y2 },
             });
           }
         } else {
           points.push({
-            start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y2 },
-            end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToBottom },
+            start: { x, y: firstCoords.y2 },
+            end: { x, y: closestToBottom },
           });
 
           if (firstCoords.y1 > secondCoords.y1) {
             points.push({
-              start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y1 },
-              end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: secondCoords.y1 },
+              start: { x, y: firstCoords.y1 },
+              end: { x, y: secondCoords.y1 },
             });
           }
         }
       } else {
         points.push({
-          start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y1 },
-          end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToTop },
+          start: { x, y: firstCoords.y1 },
+          end: { x, y: closestToTop },
         });
         points.push({
-          start: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: firstCoords.y2 },
-          end: { x: firstCoords.x1 + (currentHoverLayer.width / 2), y: closestToBottom },
+          start: { x, y: firstCoords.y2 },
+          end: { x, y: closestToBottom },
         });
       }
 
@@ -432,8 +467,8 @@ export default {
     drawLine(start, end, params = {}) {
       this.drawCanvasCtx.save();
       this.drawCanvasCtx.beginPath();
-      this.drawCanvasCtx.moveTo(start.x + 0.5, start.y + 0.5);
-      this.drawCanvasCtx.lineTo(end.x + 0.5, end.y + 0.5);
+      this.drawCanvasCtx.moveTo(parseInt(start.x) + 0.5, parseInt(start.y) + 0.5);
+      this.drawCanvasCtx.lineTo(parseInt(end.x) + 0.5, parseInt(end.y) + 0.5);
       this.drawCanvasCtx.closePath();
       this.drawCanvasCtx.strokeStyle = params.color || '#ff3d3d';
       this.drawCanvasCtx.lineWidth = 1;
@@ -443,15 +478,6 @@ export default {
       this.drawCanvasCtx.stroke();
       this.drawCanvasCtx.restore();
     },
-    drawDistance(start, end, params = {}) {
-      const distance = Math.sqrt(((start.x - end.x) ** 2) + ((start.y - end.y) ** 2));
-      if (distance > 0) {
-        this.drawCanvasCtx.save();
-        this.drawCanvasCtx.font = '12px Verdana';
-        this.drawCanvasCtx.fillStyle = params.textColor || '#ff3d3d';
-        this.drawCanvasCtx.fillText(`${distance}px`, ((start.x + end.x) / 2) + 2, ((start.y + end.y) / 2) - 2);
-      }
-    },
   },
 };
 </script>
@@ -459,11 +485,12 @@ export default {
 <style lang="less" scoped>
   .canvas-preview {
     position: relative;
-
+    
     &__wrapper {
+      position: relative;
       width: 100%;
       height: 100%;
-      position: relative;
+      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
     }
 
     & ._color-picker {

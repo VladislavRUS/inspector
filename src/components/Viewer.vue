@@ -5,11 +5,11 @@
     </div>
 
     <div class="viewer__canvas-preview">
-      <canvas-preview
-        :imagePath="imagePath"
-        :width="tree.document.width"
-        :height="tree.document.height">
-      </canvas-preview>
+        <canvas-preview
+          :imagePath="imagePath"
+          :width="tree.document.width"
+          :height="tree.document.height">
+        </canvas-preview>
     </div>
 
     <div class="viewer__export-preview" v-if="appropriateMode">
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+
 
 import CanvasPreview from './CanvasPreview';
 import Hierarchy from './Hierarchy';
@@ -50,21 +51,30 @@ export default {
 
 <style lang="less" scoped>
   .viewer {
-    position: relative;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &__hierarchy {
       position: absolute;
       left: 20px;
       top: 100px;
       box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
+      z-index: 10;
     }
 
     &__canvas-preview {
-      position: absolute;
-      left: 50%;
+      position: relative;
+      display: flex;
+      justify-content: center;
       top: 100px;
-      transform: translateX(-50%);
-      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      height: 100%;
     }
 
     &__export-preview {
@@ -72,6 +82,7 @@ export default {
       top: 100px;
       right: 20px;
       box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
+      z-index: 10;
     }
   }
 </style>

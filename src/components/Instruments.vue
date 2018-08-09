@@ -40,7 +40,7 @@ export default {
           title: 'Color picker',
           icon: colorPickerIcon,
           mode: Modes.COLOR_PICKER_MODE,
-        },
+        }
       ],
     };
   },
