@@ -63,6 +63,7 @@ const store = new Vuex.Store({
     tree: null,
     currentHoverLayerId: null,
     currentClickedLayerId: null,
+    currentSelectedLayersId: null,
     plainList: [],
   },
   mutations: {
@@ -80,6 +81,9 @@ const store = new Vuex.Store({
     },
     saveCurrentClickedLayerId(state, { id }) {
       state.currentClickedLayerId = id;
+    },
+    saveCurrentSelectedLayersId(state, { ids }) {
+      state.currentSelectedLayersId = ids;
     },
     saveLayerImagePath(state, { layerImagePath }) {
       state.layerImagePath = layerImagePath;
@@ -106,6 +110,11 @@ const store = new Vuex.Store({
         return state.plainList.find(layer => layer.id === state.currentClickedLayerId);
       }
     },
+    currentSelectedLayers: (state) => {
+      if (state.currentSelectedLayersId) {
+        return state.plainList.filter(layer => layer.type === 'layer' && state.currentSelectedLayersId.find(selectedLayerId => selectedLayerId === layer.id));
+      }
+    },
   },
   actions: {
     fetchLayerImage({ state, commit }) {
@@ -113,7 +122,7 @@ const store = new Vuex.Store({
 
       axios.post('/api/layer-image', {
         fileName: state.fileName,
-        layerPath: getLayerPath(state.plainList, state.currentClickedLayerId),
+        layerPath: getLayerPath(state.plainList, state.currentSelectedLayersId[0]),
       }).then((resp) => {
         commit('saveLayerImagePath', { layerImagePath: resp.data.layerImagePath });
         commit('saveLayerAverageColor', { color: resp.data.color });
