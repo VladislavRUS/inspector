@@ -39,29 +39,65 @@ app.post('/api/upload', (req, res) => {
     });
 });
 
-app.post('/api/layer-image', (req, res) => {
+app.post('/api/layer-image', async (req, res) => {
   const filePath = `./psd/${req.body.fileName}`;
   const psd = PSD.fromFile(filePath);
   psd.parse();
 
-  const child = psd.tree().childrenAtPath(req.body.layerPath)[0];
-  console.log(child.layer);
-  const layerPath = req.body.layerPath.replace(/[^a-zA-Z0-9]/g, '');
-  const layerImagePath = `./psd/layer_${layerPath}.png`;
-  const result = layerImagePath.substring(2);
+  const paths = req.body.layerPaths;
+  let results = [];
 
-  
-  if (fs.existsSync(layerImagePath)) {
-    average(layerImagePath, (err, color) => {
-      res.send({layerImagePath: result, color}).status(200);
-    })
-  } else {
-    child.layer.image.saveAsPng(layerImagePath).then(() => {
-      average(layerImagePath, (err, color) => {
-        res.send({layerImagePath: result, color}).status(200);
-      })
-    });
+  const { width, height } = psd.tree();
+
+  console.log(width, height);
+
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+    const child = psd.tree().childrenAtPath(path)[0];
+    const layerPath = path.replace(/[^a-zA-Z0-9]/g, '');
+    const layerImagePath = `./psd/layer_${layerPath}.png`;
+    await saveLayerImage(child, layerImagePath);
+    results.push({ src: layerImagePath.substring(2), x: child.left, y: child.top, width: child.width, height: child.height });
   }
+
+  results = align(results);
+  res.send({layerImagePaths: results}).status(200);
 });
+
+const align = (results) => {
+  let minLeft = results[0].x, minTop = results[0].y;
+
+  console.log(results);
+
+  results.forEach(layer => {
+    if (layer.x < minLeft) {
+      minLeft = layer.x;
+    }
+
+    if (layer.y < minTop) {
+      minTop = layer.y;
+    }
+  });
+
+  results = results.map(layer => ({
+    ...layer,
+    offsetX: layer.x - minLeft,
+    offsetY: layer.y - minTop
+  }));
+
+  return results;
+};
+
+const saveLayerImage = async(child, layerImagePath) => {
+  return new Promise((resolve, reject) => {
+    if (fs.existsSync(layerImagePath)) {
+      resolve();
+    } else {
+      child.layer.image.saveAsPng(layerImagePath).then(() => {
+        resolve();
+      }).catch(reject);
+    }
+  });
+};
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));

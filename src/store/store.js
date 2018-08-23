@@ -1,4 +1,5 @@
 /* eslint-disable consistent-return */
+import mergeImg from 'merge-img';
 import UUID from 'uuid/v1';
 import Vuex from 'vuex';
 import Vue from 'vue';
@@ -50,6 +51,38 @@ const setUUID = (element) => {
   }
 };
 
+const saveToCanvas = (layers, commit) => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const width = layers.map(layer => layer.offsetX + layer.width).sort((w1, w2) => w2 - w1)[0];
+  const height = layers.map(layer => layer.offsetY + layer.height).sort((h1, h2) => h2 - h1)[0];
+
+  canvas.width = width;
+  canvas.height = height;
+  document.body.appendChild(canvas);
+
+  console.log(canvas.width, canvas.height);
+
+  let cnt = 0;
+
+  layers.forEach((layer) => {
+    const image = new Image();
+    image.src = layer.src;
+
+    image.onload = () => {
+      ctx.drawImage(image, layer.offsetX, layer.offsetY);
+      cnt += 1;
+
+      if (cnt === layers.length) {
+        const dataUrl = canvas.toDataURL('image/png');
+        commit('saveMergedImageData', { data: dataUrl });
+        document.body.removeChild(canvas);
+      }
+    };
+  });
+};
+
 const store = new Vuex.Store({
   state: {
     loading: false,
@@ -65,6 +98,7 @@ const store = new Vuex.Store({
     currentClickedLayerId: null,
     currentSelectedLayersId: null,
     plainList: [],
+    mergedImageData: null,
   },
   mutations: {
     saveData(state, { imagePath, tree, fileName }) {
@@ -85,8 +119,8 @@ const store = new Vuex.Store({
     saveCurrentSelectedLayersId(state, { ids }) {
       state.currentSelectedLayersId = ids;
     },
-    saveLayerImagePath(state, { layerImagePath }) {
-      state.layerImagePath = layerImagePath;
+    saveLayerImagePaths(state, { layerImagePaths }) {
+      state.layerImagePaths = layerImagePaths;
     },
     saveLayerAverageColor(state, { color }) {
       state.color = color;
@@ -96,6 +130,10 @@ const store = new Vuex.Store({
     },
     setMode(state, { mode }) {
       state.mode = mode;
+    },
+    saveMergedImageData(state, { data }) {
+      console.log(data);
+      state.mergedImageData = data;
     },
   },
   getters: {
@@ -117,15 +155,21 @@ const store = new Vuex.Store({
     },
   },
   actions: {
-    fetchLayerImage({ state, commit }) {
+    fetchLayerImage({ state, getters, commit }) {
       state.loading = true;
+
+      const layerPaths = getters.currentSelectedLayers.map(layer => getLayerPath(state.plainList, layer.id));
+      console.log(getters.currentSelectedLayers);
 
       axios.post('/api/layer-image', {
         fileName: state.fileName,
-        layerPath: getLayerPath(state.plainList, state.currentSelectedLayersId[0]),
+        layerPaths,
       }).then((resp) => {
-        commit('saveLayerImagePath', { layerImagePath: resp.data.layerImagePath });
-        commit('saveLayerAverageColor', { color: resp.data.color });
+        saveToCanvas(resp.data.layerImagePaths, commit);
+        // mergeImg(resp.data.layerImagePaths).then((data) => {
+        //   console.log(data);
+        //   commit('saveMergedImageData', { data });
+        // });
       }).catch((err) => {
         console.log(err);
       }).finally(() => {

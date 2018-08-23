@@ -37,9 +37,6 @@ export default {
       },
     };
   },
-  mounted() {
-    console.log(this.item);
-  },
   methods: {
     toggleOpened() {
       this.isOpened = !this.isOpened;

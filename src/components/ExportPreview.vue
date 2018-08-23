@@ -1,6 +1,6 @@
 <template>
   <div class="export-preview">
-    <div class="export-preview__image" v-if="isShowImage">
+    <div class="export-preview__image">
       <img :src="imageSrc" v-bind:style="styleObject" v-if="!loading"/>
     </div>
 
@@ -80,10 +80,10 @@ export default {
       return this.item && this.item.text;
     },
     imageSrc() {
-      return `${this.$store.state.layerImagePath}`;
+      return this.$store.state.mergedImageData;
     },
     item() {
-      return this.$store.getters.currentClickedLayer;
+      return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers.length > 0;
     },
     color() {
       return this.$store.state.clickedColor;
