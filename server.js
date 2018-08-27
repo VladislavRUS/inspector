@@ -39,6 +39,10 @@ app.post('/api/upload', (req, res) => {
     });
 });
 
+const getAvarageColor = (path) => new Promise((resolve, reject) => {
+  average(path, (err, color) => resolve(color));
+});
+
 app.post('/api/layer-image', async (req, res) => {
   const filePath = `./psd/${req.body.fileName}`;
   const psd = PSD.fromFile(filePath);
@@ -52,22 +56,45 @@ app.post('/api/layer-image', async (req, res) => {
   console.log(width, height);
 
   for (let i = 0; i < paths.length; i++) {
-    const path = paths[i];
-    const child = psd.tree().childrenAtPath(path)[0];
-    const layerPath = path.replace(/[^a-zA-Z0-9]/g, '');
-    const layerImagePath = `./psd/layer_${layerPath}.png`;
-    await saveLayerImage(child, layerImagePath);
-    results.push({ src: layerImagePath.substring(2), x: child.left, y: child.top, width: child.width, height: child.height });
+    try {
+      const path = paths[i];
+      const child = psd.tree().childrenAtPath(path)[0];
+      const layerPath = path.replace(/[^a-zA-Z0-9]/g, '');
+      const layerImagePath = `./psd/layer_${layerPath}.png`;
+      
+      let success;
+
+      if (child.layer) {
+        success = await saveLayerImage(child, layerImagePath);
+
+      } else {
+        success = false;
+      }
+
+      if (success) {
+          results.push({ src: layerImagePath.substring(2), x: child.left, y: child.top, width: child.width, height: child.height });
+
+          if (paths.length === 1) {
+            results[0].color = await getAvarageColor(layerImagePath);
+          }
+      }
+    } catch(err) {
+      console.log(err);
+    }
   }
 
-  results = align(results);
+  if (results.length) {
+    results = align(results);
+  }
+  
   res.send({layerImagePaths: results}).status(200);
 });
 
 const align = (results) => {
-  let minLeft = results[0].x, minTop = results[0].y;
-
   console.log(results);
+  results = results.filter(result => result && ('x' in result) && ('y' in result));
+
+  let minLeft = results[0].x, minTop = results[0].y;
 
   results.forEach(layer => {
     if (layer.x < minLeft) {
@@ -88,16 +115,23 @@ const align = (results) => {
   return results;
 };
 
-const saveLayerImage = async(child, layerImagePath) => {
-  return new Promise((resolve, reject) => {
+const saveLayerImage = (child, layerImagePath) => 
+  new Promise((resolve, reject) => {
     if (fs.existsSync(layerImagePath)) {
-      resolve();
+      resolve(true);
+
     } else {
-      child.layer.image.saveAsPng(layerImagePath).then(() => {
-        resolve();
-      }).catch(reject);
+      try {
+        child.layer.image.saveAsPng(layerImagePath).then(() => {
+          resolve(true);
+        }).catch(err => {
+          console.log('err');
+          resolve(false);
+        });
+      } catch(err){
+        console.log(err);
+      }
     }
   });
-};
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));

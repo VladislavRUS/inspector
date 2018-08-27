@@ -189,15 +189,15 @@ export default {
       const rect = this.$refs.drawCanvas.getBoundingClientRect();
 
       return {
-        x: parseInt((event.clientX - rect.left) / this.scaleFactor),
-        y: parseInt((event.clientY - rect.top) / this.scaleFactor),
+        x: (event.clientX - rect.left) / this.scaleFactor,
+        y: (event.clientY - rect.top) / this.scaleFactor,
       };
     },
     mouseDown(event) {
       this.isMouseDown = true;
       this.mouseBeginCoords = this.getCoordinates(event);
     },
-    mouseUp() {
+    mouseUp(event) {
       if (this.isSelectMode || this.isMeasureMode) {
         let currentSelectedLayers;
 
@@ -206,14 +206,23 @@ export default {
             this.mouseBeginCoords,
             this.mouseEndCoords);
         } else {
-          currentSelectedLayers = [getCurrentLayer(
+          const newLayer =  [getCurrentLayer(
             this.$store.state.plainList,
             this.getCoordinates(event),
           )];
+
+          if (event.ctrlKey) {
+            currentSelectedLayers = this.$store.getters.currentSelectedLayers.concat(newLayer);
+          } else {
+            currentSelectedLayers = newLayer;
+          }
         }
 
-        this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
-        this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
+        if (currentSelectedLayers.length > 0) {
+          this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
+          this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
+        }
+        
       } else if (this.isColorPickerMode) {
         const { x, y } = this.getCoordinates(event);
         const data = this.previewCanvasCtx.getImageData(x, y, 1, 1).data;
@@ -317,27 +326,27 @@ export default {
             const boundingRect = this.getBoundingRect(currentSelectedLayers);
 
             this.draw(boundingRect, this.isMeasureMode);
+          }
 
-            if (this.isMeasureMode && currentHoverLayer) {
-              const firstCoords = this.getLayerCoordinates(currentHoverLayer);
-              const secondCoords = currentSelectedLayers.length === 1
-                ? this.getLayerCoordinates(currentSelectedLayers[0])
-                : this.getLayerCoordinates(this.getBoundingRect(currentSelectedLayers));
+          if (this.isMeasureMode && currentHoverLayer) {
+            const firstCoords = this.getLayerCoordinates(currentHoverLayer);
+            const secondCoords = currentSelectedLayers.length === 1
+              ? this.getLayerCoordinates(currentSelectedLayers[0])
+              : this.getLayerCoordinates(this.getBoundingRect(currentSelectedLayers));
 
-              this.points = [];
+            this.points = [];
 
-              this.points.push(
-                ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
-              );
+            this.points.push(
+              ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+            );
 
-              this.points.push(
-                ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
-              );
+            this.points.push(
+              ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+            );
 
-              this.points.forEach((point) => {
-                this.drawLine(point.start, point.end);
-              });
-            }
+            this.points.forEach((point) => {
+              this.drawLine(point.start, point.end);
+            });
           }
         }
       }
@@ -528,10 +537,10 @@ export default {
       };
     },
     drawRect(from, to) {
-      const startX = Math.min(from.x, to.x) - 0.5;
-      const startY = Math.min(from.y, to.y) - 0.5;
-      const width = Math.abs(from.x - to.x);
-      const height = Math.abs(from.y - to.y);
+      const startX = parseInt(Math.min(from.x, to.x)) + 0.5;
+      const startY = parseInt(Math.min(from.y, to.y)) + 0.5;
+      const width = parseInt(Math.abs(from.x - to.x));
+      const height = parseInt(Math.abs(from.y - to.y));
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(startX, startY, width, height);
       this.drawCanvasCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
@@ -543,10 +552,10 @@ export default {
         return;
       }
 
-      const x = child.left + 0.5;
-      const y = child.top + 0.5;
-      const width = (child.right - x) + 0.5;
-      const height = (child.bottom - y) + 0.5;
+      const x = parseInt(child.left) + 0.5;
+      const y = parseInt(child.top) + 0.5;
+      const width = parseInt(child.right - x);
+      const height = parseInt(child.bottom - y);
 
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(x, y, width, height);

@@ -44,11 +44,8 @@ export default {
     onClick() {
       this.toggleOpened();
 
-      this.$store.commit('saveCurrentClickedLayerId', { id: this.item.id });
-
-      if (this.item.type === 'layer') {
-        this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
-      }
+      this.$store.commit('saveCurrentSelectedLayersId', { ids: [ this.item.id ] });
+      this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
     },
   },
 };

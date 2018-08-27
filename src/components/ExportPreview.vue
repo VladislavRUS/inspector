@@ -1,56 +1,63 @@
 <template>
-  <div class="export-preview">
-    <div class="export-preview__image">
-      <img :src="imageSrc" v-bind:style="styleObject" v-if="!loading"/>
+  <div class="export-preview" v-if="imageData">
+    <div class="export-preview__loader" v-if="loading">
+      <fade-loader></fade-loader>
     </div>
 
-    <div class="export-preview__text" v-if="isShowText">
+    <div class="export-preview__text" v-if="showText">
       <div class="export-preview__text-value">
-        {{item.text.value}}
+        {{firstLayer.text.value}}
       </div>
+
+      <div class="export-preview__export">
+        <button class="export-preview__export-btn"
+                @click="copy(firstLayer.text.value)">
+          Copy text
+        </button>
+      </div>
+      
     </div>
 
-    <div class="export-preview__export" v-if="item">
-      <a class="export-preview__export-btn" v-bind:href="imageSrc" download v-if="!item.text">
+    <div class="export-preview__image" v-if="!loading">
+      <img :src="imageSrc" v-bind:style="styleObject"/>
+    </div>
+
+    <div class="export-preview__export">
+      <a class="export-preview__export-btn" v-bind:href="imageSrc" download>
         Export
       </a>
-      <button class="export-preview__export-btn"
-              @click="copy(item.text.value)"
-              v-if="item.text">
-        Copy text
-      </button>
     </div>
-    <div class="export-preview__info-wrapper" v-if="item">
+    <div class="export-preview__info-wrapper" >
       <div class="export-preview__info">
         <div class="export-preview__info-item">
           <div class="export-preview__info-title">Size</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
-                 @click="copy(item.width)">
-              W: {{item.width}}px
+                 @click="copy(firstLayer.width)">
+              W: {{firstLayer.width}}px
             </div>
             <div class="export-preview__info-value"
-                 @click="copy(item.height)">
-              H: {{item.height}}px
+                 @click="copy(firstLayer.height)">
+              H: {{firstLayer.height}}px
             </div>
           </div>
         </div>
-        <div class="export-preview__info-item">
+        <div class="export-preview__info-item" v-if="singleLayer">
           <div class="export-preview__info-title">Position</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
-                 @click="copy(item.left)">
-              X: {{item.left}}px
+                 @click="copy(firstLayer.left)">
+              X: {{firstLayer.left}}px
             </div>
             <div class="export-preview__info-value"
-                 @click="copy(item.top)">
-              Y: {{item.top}}px
+                 @click="copy(firstLayer.top)">
+              Y: {{firstLayer.top}}px
             </div>
           </div>
         </div>
       </div>
 
-      <div class="export-preview__styles">
+      <div class="export-preview__styles" v-if="singleLayer">
         <div class="export-preview__styles-title">
           Styles
         </div>
@@ -66,6 +73,7 @@
 </template>
 
 <script>
+import FadeLoader from 'vue-spinner/src/FadeLoader';
 
 export default {
   name: 'ExportPreview',
@@ -76,14 +84,23 @@ export default {
     isShowImage() {
       return this.item && !this.item.text;
     },
-    isShowText() {
-      return this.item && this.item.text;
+    showText() {
+      return this.singleLayer && this.firstLayer && this.firstLayer.text && this.firstLayer.text.value;
     },
     imageSrc() {
       return this.$store.state.mergedImageData;
     },
     item() {
       return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers.length > 0;
+    },
+    singleLayer() {
+      return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers.length === 1;
+    },
+    firstLayer() {
+      return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers[0];
+    },
+    imageData() {
+      return this.$store.getters.imageData
     },
     color() {
       return this.$store.state.clickedColor;
@@ -93,53 +110,55 @@ export default {
 
       styles.push({
         key: 'width',
-        value: `${this.item.width}px`,
+        value: `${this.firstLayer.width}px`,
       });
 
       styles.push({
         key: 'height',
-        value: `${this.item.height}px`,
+        value: `${this.firstLayer.height}px`,
       });
 
-      if (this.item.text) {
+      if (this.firstLayer.text) {
         styles.push({
           key: 'font-family',
-          value: `${this.item.text.font.name}`,
+          value: `${this.firstLayer.text.font.name}`,
         });
 
         styles.push({
           key: 'font-size',
-          value: `${parseInt(this.item.text.font.sizes[0])}px`,
+          value: `${parseInt(this.firstLayer.text.font.sizes[0])}px`,
         });
 
         styles.push({
           key: 'color',
-          value: `rgba(${this.$store.getters.color.join(',')})`,
+          value: this.$store.getters.color,
         });
 
         styles.push({
           key: 'text-align',
-          value: `${this.item.text.font.alignment[0]}`,
+          value: `${this.firstLayer.text.font.alignment[0]}`,
         });
       } else {
         styles.push({
           key: 'background-color',
-          value: `rgba(${this.$store.getters.color.join(',')})`,
+          value: this.$store.getters.color,
         });
       }
 
       return styles;
     },
     styleObject() {
-      let width = '100%';
-      let height = 'auto';
+      let width = 'auto';
+      let height = '100%';
 
-      if (this.item && this.item.width < 150) {
-        width = `${this.item.width}px`;
-      }
+      if (this.singleLayer) {
+        if (this.firstLayer && this.firstLayer.width < 250) {
+          width = `${this.firstLayer.width}px`;
+        }
 
-      if (this.item && this.item.height < 150) {
-        height = `${this.item.height}px`;
+        if (this.firstLayer && this.firstLayer.height < 250) {
+          height = `${this.item.height}px`;
+        }
       }
 
       const result = { width, height };
@@ -162,6 +181,9 @@ export default {
       document.body.removeChild(textarea);
     },
   },
+  components: {
+    FadeLoader
+  }
 };
 </script>
 
@@ -172,6 +194,14 @@ export default {
     flex-direction: column;
     background-color: #fff;
     width: 250px;
+
+    &__loader {
+        width: 250px;
+        height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
     &__styles {
       &-title {
@@ -251,7 +281,7 @@ export default {
 
     &__text {
       width: 100%;
-      height: 250px;
+      height: auto;
 
       &-value {
         margin: 10px;

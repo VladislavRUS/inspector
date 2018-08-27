@@ -1,10 +1,11 @@
 /* eslint-disable consistent-return */
-import mergeImg from 'merge-img';
+import * as hexAndRgba from 'hex-and-rgba/index';
 import UUID from 'uuid/v1';
 import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
 import * as Modes from '../constants/modes';
+
 
 Vue.use(Vuex);
 
@@ -21,6 +22,18 @@ const getPath = (plainList, path) => {
     return getPath(plainList, path);
   }
 };
+
+const getAllLayers = (parent, plaintList, fillList) => {
+  if (parent.type === 'group') {
+    parent.children.forEach(child => {
+      if (child.type === 'group') {
+        getAllLayers(child, plaintList, fillList)
+      } else {
+        fillList.push(child);
+      }
+    });
+  }
+}
 
 const getLayerPath = (plainList, layerId) => {
   let path = [plainList.find(layer => layer.id === layerId)];
@@ -52,34 +65,35 @@ const setUUID = (element) => {
 };
 
 const saveToCanvas = (layers, commit) => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-  const width = layers.map(layer => layer.offsetX + layer.width).sort((w1, w2) => w2 - w1)[0];
-  const height = layers.map(layer => layer.offsetY + layer.height).sort((h1, h2) => h2 - h1)[0];
+    const width = layers.map(layer => layer.offsetX + layer.width).sort((w1, w2) => w2 - w1)[0];
+    const height = layers.map(layer => layer.offsetY + layer.height).sort((h1, h2) => h2 - h1)[0];
 
-  canvas.width = width;
-  canvas.height = height;
-  document.body.appendChild(canvas);
+    canvas.width = width;
+    canvas.height = height;
+    document.body.appendChild(canvas);
 
-  console.log(canvas.width, canvas.height);
+    let cnt = 0;
 
-  let cnt = 0;
+    layers.forEach((layer) => {
+      const image = new Image();
+      image.src = layer.src;
 
-  layers.forEach((layer) => {
-    const image = new Image();
-    image.src = layer.src;
+      image.onload = () => {
+        ctx.drawImage(image, layer.offsetX, layer.offsetY);
+        cnt += 1;
 
-    image.onload = () => {
-      ctx.drawImage(image, layer.offsetX, layer.offsetY);
-      cnt += 1;
-
-      if (cnt === layers.length) {
-        const dataUrl = canvas.toDataURL('image/png');
-        commit('saveMergedImageData', { data: dataUrl });
-        document.body.removeChild(canvas);
-      }
-    };
+        if (cnt === layers.length) {
+          const dataUrl = canvas.toDataURL('image/png');
+          commit('saveMergedImageData', { data: dataUrl });
+          document.body.removeChild(canvas);
+          resolve();
+        }
+      };
+    });
   });
 };
 
@@ -95,7 +109,6 @@ const store = new Vuex.Store({
     fileName: '',
     tree: null,
     currentHoverLayerId: null,
-    currentClickedLayerId: null,
     currentSelectedLayersId: null,
     plainList: [],
     mergedImageData: null,
@@ -113,9 +126,6 @@ const store = new Vuex.Store({
     saveCurrentHoverLayerId(state, { id }) {
       state.currentHoverLayerId = id;
     },
-    saveCurrentClickedLayerId(state, { id }) {
-      state.currentClickedLayerId = id;
-    },
     saveCurrentSelectedLayersId(state, { ids }) {
       state.currentSelectedLayersId = ids;
     },
@@ -123,7 +133,7 @@ const store = new Vuex.Store({
       state.layerImagePaths = layerImagePaths;
     },
     saveLayerAverageColor(state, { color }) {
-      state.color = color;
+      state.color = hexAndRgba.rgbaToHex(color[0], color[1], color[2], color[3] / 255);
     },
     saveCurrentClickedColor(state, { color }) {
       state.clickedColor = color;
@@ -132,7 +142,6 @@ const store = new Vuex.Store({
       state.mode = mode;
     },
     saveMergedImageData(state, { data }) {
-      console.log(data);
       state.mergedImageData = data;
     },
   },
@@ -149,32 +158,48 @@ const store = new Vuex.Store({
       }
     },
     currentSelectedLayers: (state) => {
+      const selectedLayers = [];
+
       if (state.currentSelectedLayersId) {
-        return state.plainList.filter(layer => layer.type === 'layer' && state.currentSelectedLayersId.find(selectedLayerId => selectedLayerId === layer.id));
+        state.currentSelectedLayersId.forEach(id => {
+          const searchLayer = state.plainList.find(layer => layer.id === id);
+
+          if (searchLayer.type === 'group') {
+            const fillList = [];
+            getAllLayers(searchLayer, state.plainList, fillList);
+            selectedLayers.push(...fillList);
+          } else {
+            selectedLayers.push(searchLayer);
+          }
+        });
       }
+
+      return selectedLayers;
     },
+    imageData: state => state.mergedImageData,
   },
   actions: {
     fetchLayerImage({ state, getters, commit }) {
       state.loading = true;
 
-      const layerPaths = getters.currentSelectedLayers.map(layer => getLayerPath(state.plainList, layer.id));
-      console.log(getters.currentSelectedLayers);
+      
+      const layerPaths = getters.currentSelectedLayers
+        .map(layer => getLayerPath(state.plainList, layer.id));
 
       axios.post('/api/layer-image', {
         fileName: state.fileName,
         layerPaths,
       }).then((resp) => {
-        saveToCanvas(resp.data.layerImagePaths, commit);
-        // mergeImg(resp.data.layerImagePaths).then((data) => {
-        //   console.log(data);
-        //   commit('saveMergedImageData', { data });
-        // });
+        if (resp.data.layerImagePaths.length === 1) {
+          commit('saveLayerAverageColor', { color: resp.data.layerImagePaths[0].color });
+        }
+        saveToCanvas(resp.data.layerImagePaths, commit).then(() => {
+          state.loading = false;
+        });
       }).catch((err) => {
         console.log(err);
-      }).finally(() => {
         state.loading = false;
-      });
+      })
     },
   },
 });
