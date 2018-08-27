@@ -18,8 +18,7 @@
                 @mouseup="mouseUp"
                 @mousemove="mouseMove"
                 @mouseenter="mouseEnter"
-                @mouseleave="mouseLeave"
-                @click="mouseClick"></canvas>
+                @mouseleave="mouseLeave"></canvas>
       </div>
     </div>
 </template>
@@ -152,6 +151,34 @@ export default {
     rgbToHex(r, g, b) {
       return ((r << 16) | (g << 8) | b).toString(16);
     },
+    getBoundingRect(layers) {
+      let left = layers[0].left;
+      let right = layers[0].right;
+      let top = layers[0].top;
+      let bottom = layers[0].bottom;
+
+      layers.forEach((layer) => {
+        if (layer.left < left) {
+          left = layer.left;
+        }
+
+        if (layer.right > right) {
+          right = layer.right;
+        }
+
+        if (layer.top < top) {
+          top = layer.top;
+        }
+
+        if (layer.bottom > bottom) {
+          bottom = layer.bottom;
+        }
+      });
+
+      return {
+        left, right, bottom, top,
+      };
+    },
     fitToContainer(canvas) {
       canvas.style.width = '100%';
       canvas.style.height = '100%';
@@ -162,8 +189,8 @@ export default {
       const rect = this.$refs.drawCanvas.getBoundingClientRect();
 
       return {
-        x: (event.clientX - rect.left) / this.scaleFactor,
-        y: (event.clientY - rect.top) / this.scaleFactor,
+        x: parseInt((event.clientX - rect.left) / this.scaleFactor),
+        y: parseInt((event.clientY - rect.top) / this.scaleFactor),
       };
     },
     mouseDown(event) {
@@ -172,22 +199,20 @@ export default {
     },
     mouseUp() {
       if (this.isSelectMode || this.isMeasureMode) {
-        if (this.isSelectingMultipleLayers()) {
-          const currentSelectedLayers = getCurrentSelectedLayers(
-            this.$store.state.plainList,
-            this.mouseBeginCoords,
-            this.mouseEndCoords,
-          );
+        let currentSelectedLayers;
 
-          this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
+        if (this.isSelectingMultipleLayers()) {
+          currentSelectedLayers = getCurrentSelectedLayers(this.$store.state.plainList,
+            this.mouseBeginCoords,
+            this.mouseEndCoords);
         } else {
-          const currentClickedLayer = getCurrentLayer(
+          currentSelectedLayers = [getCurrentLayer(
             this.$store.state.plainList,
             this.getCoordinates(event),
-          );
-          this.$store.commit('saveCurrentSelectedLayersId', { ids: [currentClickedLayer.id] });
+          )];
         }
 
+        this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
         this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
       } else if (this.isColorPickerMode) {
         const { x, y } = this.getCoordinates(event);
@@ -251,22 +276,6 @@ export default {
         this.isColorPickerVisible = false;
       }
     },
-    mouseClick(event) {
-      // if (this.isSelectMode || this.isMeasureMode) {
-      //   const currentClickedLayer =
-      //     getCurrentLayer(this.$store.state.plainList, this.getCoordinates(event));
-      //   this.$store.commit('saveCurrentClickedLayerId', { id: currentClickedLayer.id });
-
-      //   if (currentClickedLayer.type === 'layer') {
-      //     this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
-      //   }
-      // } else if (this.isColorPickerMode) {
-      //   const { x, y } = this.getCoordinates(event);
-      //   const data = this.previewCanvasCtx.getImageData(x, y, 1, 1).data;
-      //   const hex = `#000000${this.rgbToHex(data[0], data[1], data[2])}`.slice(-6);
-      //   this.copyColor(`#${hex}`);
-      // }
-    },
     copyColor(value) {
       const textarea = document.createElement('textarea');
       textarea.value = value;
@@ -288,39 +297,49 @@ export default {
       this.drawCanvasCtx.clearRect(0, 0, this.$refs.drawCanvas.width, this.$refs.drawCanvas.height);
 
       const currentHoverLayer = this.$store.getters.currentHoverLayer;
+      this.draw(currentHoverLayer);
+
+      if (this.mouseBeginCoords && this.mouseEndCoords) {
+        this.drawRect(this.mouseBeginCoords, this.mouseEndCoords);
+      }
+
       const currentSelectedLayers = this.$store.getters.currentSelectedLayers;
 
-      if (this.isSelectingMultipleLayers()) {
-        this.drawRect(this.mouseBeginCoords, this.mouseEndCoords);
+      if (currentSelectedLayers && currentSelectedLayers.length) {
+        if (this.isSelectingMultipleLayers()) {
+          if (currentSelectedLayers) {
+            currentSelectedLayers.forEach(layer => this.draw(layer));
+          }
+        } else if (this.isSelectMode || this.isMeasureMode) {
+          if (currentSelectedLayers.length === 1) {
+            this.draw(currentSelectedLayers[0], this.isMeasureMode);
+          } else {
+            const boundingRect = this.getBoundingRect(currentSelectedLayers);
 
-        if (currentSelectedLayers) {
-          currentSelectedLayers.forEach(layer => this.draw(layer));
+            this.draw(boundingRect, this.isMeasureMode);
+
+            if (this.isMeasureMode && currentHoverLayer) {
+              const firstCoords = this.getLayerCoordinates(currentHoverLayer);
+              const secondCoords = currentSelectedLayers.length === 1
+                ? this.getLayerCoordinates(currentSelectedLayers[0])
+                : this.getLayerCoordinates(this.getBoundingRect(currentSelectedLayers));
+
+              this.points = [];
+
+              this.points.push(
+                ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+              );
+
+              this.points.push(
+                ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+              );
+
+              this.points.forEach((point) => {
+                this.drawLine(point.start, point.end);
+              });
+            }
+          }
         }
-      } else if (this.isSelectMode || this.isMeasureMode) {
-        this.draw(currentHoverLayer);
-
-        if (currentSelectedLayers) {
-          currentSelectedLayers.forEach((layer) => {
-            this.draw(layer, this.isMeasureMode);
-          });
-        }
-      } else if (this.isMeasureMode && currentSelectedLayers && currentHoverLayer) {
-        const firstCoords = this.getLayerCoordinates(currentHoverLayer);
-        const secondCoords = this.getLayerCoordinates(currentClickedLayer);
-
-        this.points = [];
-
-        this.points.push(
-          ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
-        );
-
-        this.points.push(
-          ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
-        );
-
-        this.points.forEach((point) => {
-          this.drawLine(point.start, point.end);
-        });
       }
 
       setTimeout(this.loop.bind(this), 50);
@@ -509,8 +528,8 @@ export default {
       };
     },
     drawRect(from, to) {
-      const startX = Math.min(from.x, to.x);
-      const startY = Math.min(from.y, to.y);
+      const startX = Math.min(from.x, to.x) - 0.5;
+      const startY = Math.min(from.y, to.y) - 0.5;
       const width = Math.abs(from.x - to.x);
       const height = Math.abs(from.y - to.y);
       this.drawCanvasCtx.beginPath();
