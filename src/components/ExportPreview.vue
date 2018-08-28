@@ -15,7 +15,7 @@
           Copy text
         </button>
       </div>
-      
+
     </div>
 
     <div class="export-preview__image" v-if="!loading">
@@ -100,7 +100,7 @@ export default {
       return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers[0];
     },
     imageData() {
-      return this.$store.getters.imageData
+      return this.$store.getters.imageData;
     },
     color() {
       return this.$store.state.clickedColor;
@@ -149,7 +149,7 @@ export default {
     },
     styleObject() {
       let width = 'auto';
-      let height = '100%';
+      let height = 'auto';
 
       if (this.singleLayer) {
         if (this.firstLayer && this.firstLayer.width < 250) {
@@ -182,12 +182,22 @@ export default {
     },
   },
   components: {
-    FadeLoader
-  }
+    FadeLoader,
+  },
 };
 </script>
 
 <style lang="less" scoped>
+
+  @keyframes backgroundAnimation {
+    from {
+      background-position-x: 0;
+    }
+
+    to {
+      background-position-x: 100%;
+    }
+  }
 
   .export-preview {
     display: flex;
@@ -292,6 +302,7 @@ export default {
     }
 
     &__image {
+      position: relative;
       background-image: url('../assets/transparent-bg.png');
       width: 100%;
       height: 250px;
@@ -299,9 +310,35 @@ export default {
       justify-content: center;
       align-items: center;
 
+      &:after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        background-color: rgba(115, 255, 198, 0.3);
+        z-index:  1;
+        opacity: 0;
+      }
+
+      &:hover {
+        animation-name: backgroundAnimation;
+        animation-duration: 8s;
+        animation-timing-function: linear;
+        animation-direction: alternate;
+        animation-iteration-count: infinite;
+
+        &:after {
+          opacity :1;
+        }
+      }
+
       & img {
+        position: relative;
         max-width: 100%;
         max-height: 100%;
+        z-index: 2;
       }
     }
 

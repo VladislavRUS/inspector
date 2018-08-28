@@ -18,6 +18,7 @@
 import selectIcon from '../assets/select.png';
 import rulerIcon from '../assets/ruler.svg';
 import colorPickerIcon from '../assets/color-picker.png';
+import moveIcon from '../assets/move.svg';
 
 import * as Modes from '../constants/modes';
 
@@ -40,7 +41,12 @@ export default {
           title: 'Color picker',
           icon: colorPickerIcon,
           mode: Modes.COLOR_PICKER_MODE,
-        }
+        },
+        {
+          title: 'Move',
+          icon: moveIcon,
+          mode: Modes.MOVE_MODE,
+        },
       ],
     };
   },
@@ -74,17 +80,19 @@ export default {
             height: 30px;
             cursor: pointer;
             transition: transform .2s ease;
+            opacity: 0.4;
+            user-select: none;
 
             & + & {
               margin-left: 20px;
             }
 
             &._selected {
-              border-bottom: 2px solid #5C5C5C;
+              opacity: 1;
             }
 
-            &:not(._selected):hover {
-              border-bottom: 2px solid rgba(92, 92, 92, 0.4);
+            &:hover {
+              opacity: 1;
             }
           }
         }
