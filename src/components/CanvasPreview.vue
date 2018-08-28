@@ -321,8 +321,8 @@ export default {
         }
       } else if (this.isColorPickerMode) {
         const { x, y } = this.getCoordinates(event);
-        this.colorPickerCoords.x = event.clientX;
-        this.colorPickerCoords.y = event.clientY;
+        this.colorPickerCoords.x = x;
+        this.colorPickerCoords.y = y;
         this.imageData = this.previewCanvasCtx
           .getImageData(
             x - (this.colorPickerSize.width / 4),
