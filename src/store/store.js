@@ -110,6 +110,7 @@ const store = new Vuex.Store({
     tree: null,
     currentHoverLayerId: null,
     currentSelectedLayersId: null,
+    currentSelectingLayersId: null,
     plainList: [],
     mergedImageData: null,
   },
@@ -128,6 +129,9 @@ const store = new Vuex.Store({
     },
     saveCurrentSelectedLayersId(state, { ids }) {
       state.currentSelectedLayersId = ids;
+    },
+    saveCurrentSelectingLayersId(state, { ids }) {
+      state.currentSelectingLayersId = ids;
     },
     saveLayerImagePaths(state, { layerImagePaths }) {
       state.layerImagePaths = layerImagePaths;
@@ -175,6 +179,25 @@ const store = new Vuex.Store({
       }
 
       return selectedLayers;
+    },
+    currentSelectingLayers: (state) => {
+      const selectingLayers = [];
+
+      if (state.currentSelectingLayersId) {
+        state.currentSelectingLayersId.forEach(id => {
+          const searchLayer = state.plainList.find(layer => layer.id === id);
+
+          if (searchLayer.type === 'group') {
+            const fillList = [];
+            getAllLayers(searchLayer, state.plainList, fillList);
+            selectingLayers.push(...fillList);
+          } else {
+            selectingLayers.push(searchLayer);
+          }
+        });
+      }
+
+      return selectingLayers;
     },
     imageData: state => state.mergedImageData,
   },

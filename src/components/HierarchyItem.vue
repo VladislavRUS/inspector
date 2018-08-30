@@ -2,10 +2,10 @@
     <div>
         <li class="hierarchy-item" @click="onClick()" v-bind:style="styleObject">
             <div class="hierarchy-item__arrow" :class="{'_opened': isOpened}" v-if="hasChildren">
-                <img src="../assets/arrow.svg">
+                <img src="../assets/angle-right-solid.svg">
             </div>
             <div class="hierarchy-item__img">
-                <img src="../assets/folder.svg" v-if="item.type === 'group'">
+                <img src="../assets/folder-solid.svg" v-if="item.type === 'group'">
                 <img src="../assets/layer.svg" v-if="item.type === 'layer'">
             </div>
 
@@ -60,6 +60,8 @@ export default {
     user-select: none;
     overflow: hidden;
     font-size: 14px;
+    display: flex;
+    align-items: center;
 
     &:hover {
       font-weight: bold;
@@ -69,12 +71,13 @@ export default {
     &__arrow {
         padding-left: 20px;
         display: inline-block;
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
         transition: transform .2s ease;
+        opacity: 0.6;
 
         &._opened {
-            transform: rotate(90deg) translate(-10px, -10px);
+            transform: rotate(90deg) translate(-10px, -12px);
         }
     }
 
@@ -86,19 +89,16 @@ export default {
     &__description {
         display: inline-block;
         padding-left: 15px;
-        height: 50px;
-        line-height: 50px;
+        height: 40px;
+        line-height: 30px;
         color: #5c5c5c;
     }
 
     &__visibility {
-        position: relative;
-        top: 15px;
-        right: 10px;
+        margin-left: auto;
+        margin-right: 10px;
         width: 20px;
         height: 20px;
-        display: inline-block;
-        float: right;
     }
 
     &__img {
@@ -108,6 +108,7 @@ export default {
         display: inline-block;
         width: 20px;
         height: 20px;
+        opacity: 0.6;
     }
 }
 </style>

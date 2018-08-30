@@ -6,8 +6,11 @@
           id="dropzone"
           :options="dropzoneOptions"
           v-show="!loading"
-          @vdropzone-file-added="loading=true"
+          @vdropzone-upload-progress="onUploadProgress"
+          @vdropzone-file-added="onAdded"
+          @vdropzone-max-files-exceeded="onExceed"
           @vdropzone-success="onSuccess">
+          @vdropzone-error="onError">
         </vue-dropzone>
       </div>
       <div class="upload__loader" v-if="loading">
@@ -23,13 +26,16 @@ import vue2Dropzone from 'vue2-dropzone';
 import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 import SyncLoader from 'vue-spinner/src/SyncLoader';
 
+const MAX_FILE_SIZE_MB = 70;
+
 export default {
   name: 'Upload',
   data() {
     return {
       dropzoneOptions: {
         url: '/api/upload',
-        maxFilesize: 40,
+        acceptedFiles: '.psd',
+        maxFilesize: MAX_FILE_SIZE_MB,
         method: 'post',
         previewsContainer: false,
         dictDefaultMessage: 'Drop file here',
@@ -38,10 +44,34 @@ export default {
     };
   },
   methods: {
+    onAdded(file) {
+      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        this.onExceed();
+      } else {
+        this.loading = true;
+      }
+    },
     onSuccess(event) {
       const { imagePath, tree, fileName } = JSON.parse(event.xhr.response);
       this.$store.commit('saveData', { imagePath, tree, fileName });
       this.$router.push('/viewer');
+    },
+    onError() {
+      this.loading = false;
+
+      this.$toasted.error('Error!', {
+        duration: 2000,
+      });
+    },
+    onExceed() {
+      this.loading = false;
+
+      this.$toasted.error(`Too big file! Should be less than ${MAX_FILE_SIZE_MB}mb`, {
+        duration: 2000,
+      });
+    },
+    onUploadProgress(file, progress) {
+      console.log(progress);
     },
   },
   components: {

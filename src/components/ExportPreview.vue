@@ -85,19 +85,25 @@ export default {
       return this.item && !this.item.text;
     },
     showText() {
-      return this.singleLayer && this.firstLayer && this.firstLayer.text && this.firstLayer.text.value;
+      return this.singleLayer &&
+        this.firstLayer &&
+        this.firstLayer.text &&
+        this.firstLayer.text.value;
     },
     imageSrc() {
       return this.$store.state.mergedImageData;
     },
     item() {
-      return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers.length > 0;
+      return this.$store.getters.currentSelectedLayers &&
+        this.$store.getters.currentSelectedLayers.length > 0;
     },
     singleLayer() {
-      return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers.length === 1;
+      return this.$store.getters.currentSelectedLayers &&
+        this.$store.getters.currentSelectedLayers.length === 1;
     },
     firstLayer() {
-      return this.$store.getters.currentSelectedLayers && this.$store.getters.currentSelectedLayers[0];
+      return this.$store.getters.currentSelectedLayers &&
+        this.$store.getters.currentSelectedLayers[0];
     },
     imageData() {
       return this.$store.getters.imageData;
@@ -126,7 +132,7 @@ export default {
 
         styles.push({
           key: 'font-size',
-          value: `${parseInt(this.firstLayer.text.font.sizes[0])}px`,
+          value: `${parseInt(this.firstLayer.text.font.sizes[0], 10)}px`,
         });
 
         styles.push({

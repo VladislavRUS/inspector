@@ -1,9 +1,9 @@
 <template>
     <div>
         <div class="measure-value" 
-            v-for="mValue in measureValues"
+            v-for="(mValue, index) in measureValues"
             v-if="mValue.value > 0"
-            :key="mValue.value" 
+            :key="index"
             :style="mValue.style">
             {{mValue.value}} px
         </div>

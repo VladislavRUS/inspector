@@ -14,8 +14,11 @@
         :h="colorPickerSize.height"/>
 
 
-      <div class="canvas-preview__wrapper" v-bind:style="wrapperStyle" @mousewheel="mouseWheel" v-on:dblclick="reset">
-        <measure-values v-if="isMeasureMode" :points="points" :scaleFactor="scaleFactor" />
+      <div class="canvas-preview__wrapper"
+           v-bind:style="wrapperStyle"
+           @mousewheel="mouseWheel"
+           v-on:dblclick="reset">
+        <measure-values v-if="isMeasureMode && !isMouseDown" :points="points" :scaleFactor="scaleFactor" />
         <canvas ref="previewCanvas"></canvas>
         <canvas ref="drawCanvas"
                 v-bind:class="{'_color-picker': mode === 'color-picker'}"
@@ -316,8 +319,8 @@ export default {
         } else {
           this.mouseEndCoords = this.getCoordinates(event);
 
-          const currentSelectedLayers = getCurrentSelectedLayers(this.$store.state.plainList, this.mouseBeginCoords, this.mouseEndCoords);
-          this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
+          const currentSelectingLayers = getCurrentSelectedLayers(this.$store.state.plainList, this.mouseBeginCoords, this.mouseEndCoords);
+          this.$store.commit('saveCurrentSelectingLayersId', { ids: currentSelectingLayers.map(layer => layer.id) });
         }
       } else if (this.isColorPickerMode) {
         const { x, y } = this.getCoordinates(event);
@@ -371,20 +374,16 @@ export default {
       }
 
       const currentSelectedLayers = this.$store.getters.currentSelectedLayers;
+      const currentSelectingLayers = this.$store.getters.currentSelectingLayers;
 
-      if (currentSelectedLayers && currentSelectedLayers.length) {
-        if (this.isSelectingMultipleLayers()) {
-          if (currentSelectedLayers) {
-            currentSelectedLayers.forEach(layer => this.draw(layer));
-          }
-        } else if (this.isSelectMode || this.isMeasureMode) {
-          if (currentSelectedLayers.length === 1) {
-            this.draw(currentSelectedLayers[0], this.isMeasureMode);
-          } else {
-            const boundingRect = this.getBoundingRect(currentSelectedLayers);
-
-            this.draw(boundingRect, this.isMeasureMode);
-          }
+      if (this.isSelectingMultipleLayers()) {
+        if (currentSelectingLayers) {
+          currentSelectingLayers.forEach(layer => this.draw(layer));
+        }
+      } else if (currentSelectedLayers && currentSelectedLayers.length) {
+        if (this.isSelectMode || this.isMeasureMode) {
+          const boundingRect = this.getBoundingRect(currentSelectedLayers);
+          this.draw(boundingRect, this.isMeasureMode);
 
           if (this.isMeasureMode && currentHoverLayer) {
             const firstCoords = this.getLayerCoordinates(currentHoverLayer);

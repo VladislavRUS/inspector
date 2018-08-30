@@ -1,10 +1,7 @@
 <template>
     <div class="header">
       <div class="header__logo">
-        <img src="../assets/html-coding.svg">
-      </div>
-      <div class="header__title">
-        {{imageName}}
+        Inspector
       </div>
     </div>
 </template>
@@ -30,22 +27,29 @@ export default {
 <style scoped lang="less">
   .header {
     position: fixed;
-    background-color: #FFF;
-    height: 50px;
     top: 0;
     right: 0;
     left: 0;
-    z-index: 100;
     display: flex;
     justify-content: flex-start;
+    background-color: #ffffff;
+    box-shadow: 0 1px 10px -1px rgba(0, 0, 0, 0.3);
+    height: 50px;
+    z-index: 100;
 
     &__logo {
       padding-left: 20px;
       width: 50px;
       height: 50px;
+      font-size: 30px;
+      font-weight: 300;
+      line-height: 50px;
+      color: #2D2D2D;
     }
 
     &__title {
+      position: relative;
+      left: 70px;
       padding-left: 20px;
       line-height: 50px;
       font-size: 16px;

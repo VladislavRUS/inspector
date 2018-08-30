@@ -31,8 +31,7 @@ export default {
 <style scoped lang="less">
     .hierarchy {
         background-color: #FFF;
-        max-width: 500px;
-        min-width: 300px;
+        width: 250px;
 
         &__list {
             margin: 0;

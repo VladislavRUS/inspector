@@ -15,10 +15,10 @@
 
 <script>
 
-import selectIcon from '../assets/select.png';
-import rulerIcon from '../assets/ruler.svg';
-import colorPickerIcon from '../assets/color-picker.png';
-import moveIcon from '../assets/move.svg';
+import selectIcon from '../assets/mouse-pointer-solid.svg';
+import rulerIcon from '../assets/ruler-solid.svg';
+import colorPickerIcon from '../assets/eye-dropper-solid.svg';
+import moveIcon from '../assets/arrows-alt-solid.svg';
 
 import * as Modes from '../constants/modes';
 
@@ -68,7 +68,7 @@ export default {
 
         &__list {
           height: 100%;
-          padding: 0 0 0 20px;
+          padding: 0 20px;
           margin: 0;
           display: flex;
           align-items: center;
@@ -76,19 +76,19 @@ export default {
 
           &-item {
             padding-bottom: 2px;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
+            width: 23px;
+            height: 23px;
             transition: transform .2s ease;
-            opacity: 0.4;
+            opacity: 0.6;
             user-select: none;
+            cursor: pointer;
 
             & + & {
               margin-left: 20px;
             }
 
             &._selected {
-              opacity: 1;
+              opacity: 0.9;
             }
 
             &:hover {
