@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="measure-value" 
+        <div class="measure-value"
             v-for="(mValue, index) in measureValues"
             v-if="mValue.value > 0"
             :key="index"
@@ -12,22 +12,22 @@
 
 <script>
 export default {
-  name: "MeasureValues",
-  props: ["points", "scaleFactor"],
+  name: 'MeasureValues',
+  props: ['points', 'scaleFactor'],
   computed: {
     measureValues() {
-      return this.points.map(point => {
+      return this.points.map((point) => {
         const { start, end } = point;
         const style = {
-            fontSize: `${parseInt(11 / this.scaleFactor)}px`,
-            transform: `translate(${(start.x  + end.x ) / 2}px, ${(start.y + end.y) / 2}px)`,
+          fontSize: `${parseInt(11 / this.scaleFactor, 10)}px`,
+          transform: `translate(${(start.x + end.x) / 2}px, ${(start.y + end.y) / 2}px)`,
         };
-                
-        const value = Math.sqrt((start.x - end.x) ** 2 + (start.y - end.y) ** 2);
+
+        const value = Math.sqrt(((start.x - end.x) ** 2) + ((start.y - end.y) ** 2));
         return { style, value };
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

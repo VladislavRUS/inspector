@@ -14,7 +14,7 @@
         </vue-dropzone>
       </div>
       <div class="upload__loader" v-if="loading">
-        <sync-loader></sync-loader>
+        <sync-loader color="#6c6c6c"></sync-loader>
       </div>
     </div>
   </div>

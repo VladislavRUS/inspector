@@ -1,44 +1,49 @@
 <template>
-  <div class="export-preview" v-if="imageData">
-    <div class="export-preview__loader" v-if="loading">
-      <fade-loader></fade-loader>
-    </div>
-
+  <div class="export-preview">
     <div class="export-preview__text" v-if="showText">
-      <div class="export-preview__text-value">
-        {{firstLayer.text.value}}
-      </div>
-
+      <textarea
+        class="export-preview__text-value"
+        v-bind:value="firstLayer.text.value"
+        spellcheck="false"
+        disabled/>
       <div class="export-preview__export">
         <button class="export-preview__export-btn"
                 @click="copy(firstLayer.text.value)">
           Copy text
+          <img v-bind:src="copyIcon">
         </button>
       </div>
-
     </div>
 
-    <div class="export-preview__image" v-if="!loading">
-      <img :src="imageSrc" v-bind:style="styleObject"/>
+    <div class="export-preview__loader" v-if="loading">
+      <fade-loader color="#606060"></fade-loader>
     </div>
 
-    <div class="export-preview__export">
-      <a class="export-preview__export-btn" v-bind:href="imageSrc" download>
-        Export
-      </a>
+    <div v-if="!loading && imageData">
+      <div class="export-preview__image">
+        <img :src="imageSrc" v-bind:style="styleObject"/>
+      </div>
+      <div class="export-preview__export">
+        <a class="export-preview__export-btn" v-bind:href="imageSrc" download>
+          Export
+
+          <img v-bind:src="exportIcon">
+        </a>
+      </div>
     </div>
-    <div class="export-preview__info-wrapper" >
+
+    <div class="export-preview__info-wrapper" v-if="firstLayer">
       <div class="export-preview__info">
         <div class="export-preview__info-item">
           <div class="export-preview__info-title">Size</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
-                 @click="copy(firstLayer.width)">
-              W: {{firstLayer.width}}px
+                 @click="copy(width)">
+              W: {{width}}px
             </div>
             <div class="export-preview__info-value"
-                 @click="copy(firstLayer.height)">
-              H: {{firstLayer.height}}px
+                 @click="copy(height)">
+              H: {{height}}px
             </div>
           </div>
         </div>
@@ -58,13 +63,16 @@
       </div>
 
       <div class="export-preview__styles" v-if="singleLayer">
-        <div class="export-preview__styles-title">
-          Styles
-        </div>
         <div class="export-preview__styles-table">
           <div class="export-preview__styles-row" v-for="style in styles" v-bind:key="style.key">
-            <div class="export-preview__styles-td _key">{{style.key}}</div>
-            <div class="export-preview__styles-td _value">{{style.value}}</div>
+            <div class="export-preview__styles-td _key">{{style.key}}:</div>
+            <div class="export-preview__styles-td _value">
+              {{style.value}}
+
+              <div class="export-preview__styles-td-color"
+                    v-if="style.key === 'background-color' || style.key === 'color'"
+                    v-bind:style="{backgroundColor: style.value}"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -74,15 +82,42 @@
 
 <script>
 import FadeLoader from 'vue-spinner/src/FadeLoader';
+import copyIcon from '../assets/copy-solid.svg';
+import exportIcon from '../assets/file-export-solid.svg';
+import getBoundingRect from '../helpers/getBoundingRect';
 
 export default {
   name: 'ExportPreview',
+  data() {
+    return {
+      copyIcon,
+      exportIcon,
+    };
+  },
   computed: {
     loading() {
       return this.$store.state.loading;
     },
     isShowImage() {
       return this.item && !this.item.text;
+    },
+    width() {
+      if (this.$store.getters.currentSelectedLayers) {
+        const { left, right } = getBoundingRect(this.$store.getters.currentSelectedLayers);
+
+        return right - left;
+      }
+
+      return 0;
+    },
+    height() {
+      if (this.$store.getters.currentSelectedLayers) {
+        const { top, bottom } = getBoundingRect(this.$store.getters.currentSelectedLayers);
+
+        return bottom - top;
+      }
+
+      return 0;
     },
     showText() {
       return this.singleLayer &&
@@ -220,11 +255,16 @@ export default {
     }
 
     &__styles {
+      margin: 10px;
+      background-color: #F0F0F0;
+      border: 1px solid #bababa;
+
       &-title {
         padding-left: 20px;
         margin-bottom: 5px;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: bold;
+        font-family: monospace;
       }
 
       &-table {
@@ -233,7 +273,7 @@ export default {
       }
 
       &-row {
-        padding: 5px 20px;
+        padding: 5px 10px;
         display: flex;
 
         &:hover {
@@ -243,15 +283,24 @@ export default {
 
       &-td {
         font-family: monospace;
-        font-size: 11px;
-        font-weight: bold;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
 
         &._key {
-          color: #00b0dc;
+          color: #000;
+          font-weight: bold;
         }
 
         &._value {
-          color: #c26bfa;
+          color: #6c6c6c;
+        }
+
+        &-color {
+          margin-left: 5px;
+          width: 10px;
+          height: 10px;
+          border: 1px solid rgba(0, 0, 0, 0.3);
         }
 
         &:last-child {
@@ -264,6 +313,7 @@ export default {
       display: flex;
       flex-direction: column;
       padding: 10px 20px;
+      font-family: monospace;
 
       &-values {
         display: flex;
@@ -274,12 +324,13 @@ export default {
         display: flex;
 
         & + & {
-          margin-top: 10px;
+          margin-top: 5px;
         }
       }
 
       &-title {
         font-weight: bold;
+        font-size: 14px;
       }
 
       &-value {
@@ -298,12 +349,20 @@ export default {
     &__text {
       width: 100%;
       height: auto;
+      padding: 10px;
+      box-sizing: border-box;
 
       &-value {
-        margin: 10px;
-        background-color: white;
+        padding: 10px;
+        width: 100%;
+        min-height: 100px;
         color: black;
-        font-size: 24px;
+        font-size: 14px;
+        box-sizing: border-box;
+        outline: none;
+        background-color: #F0F0F0;
+        border: 1px solid #bababa;
+        resize: none;
       }
     }
 
@@ -312,9 +371,11 @@ export default {
       background-image: url('../assets/transparent-bg.png');
       width: 100%;
       height: 250px;
+      box-sizing: border-box;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 10px;
 
       &:after {
         content: "";
@@ -323,12 +384,13 @@ export default {
         right: 0;
         bottom: 0;
         top: 0;
-        background-color: rgba(115, 255, 198, 0.3);
+        background-color: rgba(162, 162, 162, 0.28);
         z-index:  1;
         opacity: 0;
       }
 
       &:hover {
+        background-color: red;
         animation-name: backgroundAnimation;
         animation-duration: 8s;
         animation-timing-function: linear;
@@ -349,24 +411,40 @@ export default {
     }
 
     &__export {
+      display: flex;
+      justify-content: center;
       padding: 10px 0;
       width: 100%;
       text-align: center;
 
       &-btn {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #00BC87;
+        display: flex;
+        align-items: center;
+        padding: 7px 20px;
+        background-color: #606060;
         outline: none;
-        border: none;
+        border: 1px solid #606060;
         color: #fff;
-        font-weight: bold;
-        border-radius: 2px;
         cursor: pointer;
         text-decoration: none;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 100%;
+        box-shadow: 0 1px 5px -2px rgba(0, 0, 0, 0.3);
+
+        & img {
+          margin-left: auto;
+          padding-left: 10px;
+          width: 15px;
+          height: 15px;
+        }
+
+        &:hover {
+          background-color: #4b4b4b;
+        }
 
         &:active {
-          background-color: rgb(0, 165, 118);
+          background-color: #3a3a3a;
         }
       }
     }

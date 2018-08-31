@@ -1,25 +1,35 @@
 <template>
     <div>
-        <li class="hierarchy-item" @click="onClick()" v-bind:style="styleObject">
-            <div class="hierarchy-item__arrow" :class="{'_opened': isOpened}" v-if="hasChildren">
+        <li class="hierarchy-item"
+            @click="onClick()"
+            v-bind:style="styleObject"
+            :class="{'_selected': isSelected}">
+            <div class="hierarchy-item__arrow"
+                 :class="{'_opened': isOpened, '_visible': hasChildren}">
                 <img src="../assets/angle-right-solid.svg">
             </div>
             <div class="hierarchy-item__img">
                 <img src="../assets/folder-solid.svg" v-if="item.type === 'group'">
-                <img src="../assets/layer.svg" v-if="item.type === 'layer'">
+                <img src="../assets/layer-group-solid.svg" v-if="item.type === 'layer'">
             </div>
 
             <div class="hierarchy-item__description">
                 {{item.name}}
             </div>
 
-            <div class="hierarchy-item__visibility" v-if="!item.visible">
-                <img src="../assets/not-visible.svg">
+            <div class="hierarchy-item__visibility"
+                  v-if="!item.visible"
+                 title="Layer is not visible">
+            <img src="../assets/eye-slash-solid.svg">
             </div>
         </li>
 
         <ul class="hierarchy-item__children" v-if="hasChildren > 0 && isOpened">
-            <hierarchy-item :key="child.id" :item="child" v-for="child in item.children" :level="level + 1"></hierarchy-item>
+            <hierarchy-item
+              v-for="child in item.children"
+              :key="child.id"
+              :item="child"
+              :level="level + 1"></hierarchy-item>
         </ul>
     </div>
 </template>
@@ -33,7 +43,7 @@ export default {
       isOpened: false,
       hasChildren: this.item.children && this.item.children.length > 0,
       styleObject: {
-        paddingLeft: `${parseInt(this.level, 10) * 20}px`,
+        paddingLeft: `${parseInt(this.level, 10) * 10}px`,
       },
     };
   },
@@ -50,34 +60,46 @@ export default {
       }
     },
   },
+  computed: {
+    isSelected() {
+      return this.$store.getters.currentSelectedLayers.length === 1 &&
+        this.$store.getters.currentSelectedLayers[0].id === this.item.id;
+    },
+  },
 };
 </script>
 
 <style scoped lang="less">
 
 .hierarchy-item {
-    cursor: pointer;
-    user-select: none;
-    overflow: hidden;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  height: 35px;
+  font-size: 14px;
+  user-select: none;
+  overflow: hidden;
 
-    &:hover {
+    &:hover,
+    &._selected {
       font-weight: bold;
       background-color: #F0F0F0;
     }
 
     &__arrow {
-        padding-left: 20px;
+        padding-left: 10px;
         display: inline-block;
         width: 20px;
         height: 20px;
         transition: transform .2s ease;
-        opacity: 0.6;
+        opacity: 0;
 
         &._opened {
             transform: rotate(90deg) translate(-10px, -12px);
+        }
+
+        &._visible {
+          padding-left: 20px;
+          opacity: 0.6;
         }
     }
 
@@ -87,11 +109,12 @@ export default {
     }
 
     &__description {
-        display: inline-block;
+        padding-top: 5px;
         padding-left: 15px;
-        height: 40px;
-        line-height: 30px;
-        color: #5c5c5c;
+        color: #606060;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__visibility {
@@ -99,13 +122,13 @@ export default {
         margin-right: 10px;
         width: 20px;
         height: 20px;
+        opacity: 0.6;
     }
 
     &__img {
-        position: relative;
-        top: 3px;
+        flex-shrink: 0;
+        flex-grow: 0;
         padding-left: 15px;
-        display: inline-block;
         width: 20px;
         height: 20px;
         opacity: 0.6;

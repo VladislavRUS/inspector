@@ -32,6 +32,9 @@ export default {
     .hierarchy {
         background-color: #FFF;
         width: 250px;
+        max-height: 500px;
+        overflow-y: auto;
+        padding-bottom: 10px;
 
         &__list {
             margin: 0;

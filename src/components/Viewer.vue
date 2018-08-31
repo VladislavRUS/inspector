@@ -4,6 +4,10 @@
       <hierarchy></hierarchy>
     </div>
 
+    <div class="viewer__color-picker" v-if="isColorPickerMode">
+      <color-picker/>
+    </div>
+
     <div class="viewer__canvas-preview">
         <canvas-preview
           :imagePath="imagePath"
@@ -12,7 +16,7 @@
         </canvas-preview>
     </div>
 
-    <div class="viewer__export-preview" v-if="appropriateMode">
+    <div class="viewer__export-preview">
       <export-preview></export-preview>
     </div>
   </div>
@@ -22,13 +26,14 @@
 
 
 import CanvasPreview from './CanvasPreview';
+import ColorPicker from './ColorPicker';
 import Hierarchy from './Hierarchy';
 import ExportPreview from './ExportPreview';
 import * as Modes from '../constants/modes';
 
 export default {
   name: 'Viewer',
-  components: { ExportPreview, CanvasPreview, Hierarchy },
+  components: { ExportPreview, CanvasPreview, Hierarchy, ColorPicker },
   data() {
     return {
       imagePath: this.$store.state.imagePath,
@@ -36,6 +41,9 @@ export default {
     };
   },
   computed: {
+    isColorPickerMode() {
+      return this.$store.state.mode === Modes.COLOR_PICKER_MODE
+    },
     appropriateMode() {
       return this.$store.state.mode === Modes.SELECT_MODE ||
       this.$store.state.mode === Modes.MEASURE_MODE;

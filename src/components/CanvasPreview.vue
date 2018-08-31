@@ -1,24 +1,18 @@
 <template>
+
     <div class="canvas-preview"
          v-bind:style="canvasStyle"
          @mousemove="canvasMouseMove"
          @mousedown="canvasMouseDown"
-         @mouseleave="canvasMouseUp"
+         @mousewheel="mouseWheel"
          @mouseup="canvasMouseUp">
-      <color-picker
-        v-if="isColorPickerVisible"
-        :x="colorPickerCoords.x"
-        :y="colorPickerCoords.y"
-        :imageData="imageData"
-        :w="colorPickerSize.width"
-        :h="colorPickerSize.height"/>
-
 
       <div class="canvas-preview__wrapper"
-           v-bind:style="wrapperStyle"
-           @mousewheel="mouseWheel"
-           v-on:dblclick="reset">
-        <measure-values v-if="isMeasureMode && !isMouseDown" :points="points" :scaleFactor="scaleFactor" />
+           v-bind:style="wrapperStyle">
+        <measure-values
+          v-if="isMeasureMode && !isMouseDown && !isMouseOut"
+          :points="points"
+          :scaleFactor="scaleFactor" />
         <canvas ref="previewCanvas"></canvas>
         <canvas ref="drawCanvas"
                 v-bind:class="{'_color-picker': mode === 'color-picker'}"
@@ -38,6 +32,7 @@
 import ColorPicker from './ColorPicker';
 import MeasureValues from './MeasureValues';
 import * as Modes from '../constants/modes';
+import getBoundingRect from '../helpers/getBoundingRect';
 
 function getSquare(element) {
   const { top, right, bottom, left } = element;
@@ -97,19 +92,14 @@ export default {
       },
       imageData: null,
       points: [],
-      scaleFactor: 1,
       scaleFactorStep: 0.04,
       draggableValue: {},
       isMouseDown: false,
       mouseBeginCoords: null,
       mouseEndCoords: null,
       canvasMousePosition: null,
-      canvasPosition: null,
-      canvasTranslate: {
-        x: 0,
-        y: 0,
-      },
       isDragging: false,
+      isMouseOut: true,
     };
   },
   computed: {
@@ -128,11 +118,17 @@ export default {
     isMoveMode() {
       return this.mode === Modes.MOVE_MODE;
     },
+    canvasTranslate() {
+      return this.$store.state.canvasTranslate;
+    },
+    canvasPosition() {
+      return this.$store.state.canvasPosition;
+    },
     canvasStyle() {
       const x = (this.canvasTranslate && this.canvasTranslate.x) || 0;
       const y = (this.canvasTranslate && this.canvasTranslate.y) || 0;
       return {
-        transform: `translate(${x}px, ${y}px)`,
+        transform: `translate3d(${x}px, ${y}px, 0)`,
         cursor: this.isMoveMode ? 'move' : 'default',
       };
     },
@@ -142,6 +138,9 @@ export default {
         height: `${this.height}px`,
         transform: `scale(${this.scaleFactor})`,
       };
+    },
+    scaleFactor() {
+      return this.$store.state.scaleFactor;
     },
   },
   mounted() {
@@ -168,12 +167,9 @@ export default {
         y: event.clientY,
       };
 
-      this.canvasPosition = {
-        x: this.canvasTranslate.x,
-        y: this.canvasTranslate.y,
-      };
+      this.$store.commit('saveCanvasPosition');
     },
-    canvasMouseUp(event) {
+    canvasMouseUp() {
       this.isDragging = false;
     },
     canvasMouseMove(event) {
@@ -186,8 +182,7 @@ export default {
         const diffX = coords.x - this.canvasMousePosition.x;
         const diffY = coords.y - this.canvasMousePosition.y;
 
-        this.canvasTranslate.x = this.canvasPosition.x + diffX;
-        this.canvasTranslate.y = this.canvasPosition.y + diffY;
+        this.$store.commit('saveCanvasTranslate', { diffX, diffY });
       }
     },
     drawImage() {
@@ -204,46 +199,18 @@ export default {
     rgbToHex(r, g, b) {
       return ((r << 16) | (g << 8) | b).toString(16);
     },
-    getBoundingRect(layers) {
-      let left = layers[0].left;
-      let right = layers[0].right;
-      let top = layers[0].top;
-      let bottom = layers[0].bottom;
-
-      layers.forEach((layer) => {
-        if (layer.left < left) {
-          left = layer.left;
-        }
-
-        if (layer.right > right) {
-          right = layer.right;
-        }
-
-        if (layer.top < top) {
-          top = layer.top;
-        }
-
-        if (layer.bottom > bottom) {
-          bottom = layer.bottom;
-        }
-      });
-
-      return {
-        left, right, bottom, top,
-      };
-    },
     fitToContainer(canvas) {
       canvas.style.width = '100%';
       canvas.style.height = '100%';
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
     },
-    getCoordinates(event, noScale) {
+    getCoordinates(event) {
       const rect = this.$refs.drawCanvas.getBoundingClientRect();
 
       return {
-        x: (event.clientX - rect.left) / (noScale ? 1 : this.scaleFactor),
-        y: (event.clientY - rect.top) / (noScale ? 1 : this.scaleFactor),
+        x: (event.clientX - rect.left) / this.scaleFactor,
+        y: (event.clientY - rect.top) / this.scaleFactor,
       };
     },
     mouseDown(event) {
@@ -292,34 +259,34 @@ export default {
       }
       event.preventDefault();
 
+      let scaleFactor = this.scaleFactor;
 
       if (event.wheelDelta < 0) {
-        this.scaleFactor -= this.scaleFactorStep;
+        scaleFactor -= this.scaleFactorStep;
       } else {
-        this.scaleFactor += this.scaleFactorStep;
+        scaleFactor += this.scaleFactorStep;
       }
-    },
-    reset() {
-      this.scaleFactor = 1;
-      this.canvasTranslate = {
-        x: 0,
-        y: 0,
-      };
 
-      this.canvasPosition = {
-        x: 0,
-        y: 0,
-      };
+      this.$store.commit('saveScaleFactor', { scaleFactor });
     },
     mouseMove(event) {
       if (this.isSelectMode || this.isMeasureMode) {
         if (!this.isMouseDown) {
-          const currentHoverLayer = getCurrentLayer(this.$store.state.plainList, this.getCoordinates(event));
+          const currentHoverLayer =
+            getCurrentLayer(
+              this.$store.state.plainList,
+              this.getCoordinates(event),
+            );
           this.$store.commit('saveCurrentHoverLayerId', { id: currentHoverLayer.id });
         } else {
           this.mouseEndCoords = this.getCoordinates(event);
 
-          const currentSelectingLayers = getCurrentSelectedLayers(this.$store.state.plainList, this.mouseBeginCoords, this.mouseEndCoords);
+          const currentSelectingLayers =
+            getCurrentSelectedLayers(
+              this.$store.state.plainList,
+              this.mouseBeginCoords,
+              this.mouseEndCoords,
+            );
           this.$store.commit('saveCurrentSelectingLayersId', { ids: currentSelectingLayers.map(layer => layer.id) });
         }
       } else if (this.isColorPickerMode) {
@@ -332,12 +299,16 @@ export default {
             y - (this.colorPickerSize.height / 4),
             this.colorPickerSize.width,
             this.colorPickerSize.height);
+
+        this.$store.commit('saveCanvasImageData', { imageData: this.imageData });
       }
     },
     mouseEnter() {
       if (this.isColorPickerMode) {
         this.isColorPickerVisible = true;
       }
+
+      this.isMouseOut = false;
     },
     mouseLeave() {
       this.$store.commit('saveCurrentHoverLayerId', { id: null });
@@ -345,6 +316,7 @@ export default {
       if (this.isColorPickerMode) {
         this.isColorPickerVisible = false;
       }
+      this.isMouseOut = true;
     },
     copyColor(value) {
       const textarea = document.createElement('textarea');
@@ -353,7 +325,7 @@ export default {
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
-      this.$toasted.show(`Copied: ${value}`, {
+      this.$toasted.show(`Copied: ${value} <div style="width: 15px; height: 15px; background-color: ${value}"></div>`, {
         className: 'toast-custom',
         position: 'bottom-right',
         duration: 2000,
@@ -382,14 +354,14 @@ export default {
         }
       } else if (currentSelectedLayers && currentSelectedLayers.length) {
         if (this.isSelectMode || this.isMeasureMode) {
-          const boundingRect = this.getBoundingRect(currentSelectedLayers);
+          const boundingRect = getBoundingRect(currentSelectedLayers);
           this.draw(boundingRect, this.isMeasureMode);
 
           if (this.isMeasureMode && currentHoverLayer) {
             const firstCoords = this.getLayerCoordinates(currentHoverLayer);
             const secondCoords = currentSelectedLayers.length === 1
               ? this.getLayerCoordinates(currentSelectedLayers[0])
-              : this.getLayerCoordinates(this.getBoundingRect(currentSelectedLayers));
+              : this.getLayerCoordinates(getBoundingRect(currentSelectedLayers));
 
             this.points = [];
 
@@ -652,9 +624,18 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  .canvas-restore {
+    position: fixed;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 50px;
+    opacity: 0.6;
+  }
+
   .canvas-preview {
     position: relative;
-    //transition: transform .05s linear;
 
     &__wrapper {
       position: relative;
@@ -678,6 +659,5 @@ export default {
       cursor: crosshair;
     }
   }
-
 
 </style>

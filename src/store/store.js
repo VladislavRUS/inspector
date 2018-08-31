@@ -25,15 +25,15 @@ const getPath = (plainList, path) => {
 
 const getAllLayers = (parent, plaintList, fillList) => {
   if (parent.type === 'group') {
-    parent.children.forEach(child => {
+    parent.children.forEach((child) => {
       if (child.type === 'group') {
-        getAllLayers(child, plaintList, fillList)
+        getAllLayers(child, plaintList, fillList);
       } else {
         fillList.push(child);
       }
     });
   }
-}
+};
 
 const getLayerPath = (plainList, layerId) => {
   let path = [plainList.find(layer => layer.id === layerId)];
@@ -64,38 +64,36 @@ const setUUID = (element) => {
   }
 };
 
-const saveToCanvas = (layers, commit) => {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+const saveToCanvas = (layers, commit) => new Promise((resolve, reject) => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
-    const width = layers.map(layer => layer.offsetX + layer.width).sort((w1, w2) => w2 - w1)[0];
-    const height = layers.map(layer => layer.offsetY + layer.height).sort((h1, h2) => h2 - h1)[0];
+  const width = layers.map(layer => layer.offsetX + layer.width).sort((w1, w2) => w2 - w1)[0];
+  const height = layers.map(layer => layer.offsetY + layer.height).sort((h1, h2) => h2 - h1)[0];
 
-    canvas.width = width;
-    canvas.height = height;
-    document.body.appendChild(canvas);
+  canvas.width = width;
+  canvas.height = height;
+  document.body.appendChild(canvas);
 
-    let cnt = 0;
+  let cnt = 0;
 
-    layers.forEach((layer) => {
-      const image = new Image();
-      image.src = layer.src;
+  layers.forEach((layer) => {
+    const image = new Image();
+    image.src = layer.src;
 
-      image.onload = () => {
-        ctx.drawImage(image, layer.offsetX, layer.offsetY);
-        cnt += 1;
+    image.onload = () => {
+      ctx.drawImage(image, layer.offsetX, layer.offsetY);
+      cnt += 1;
 
-        if (cnt === layers.length) {
-          const dataUrl = canvas.toDataURL('image/png');
-          commit('saveMergedImageData', { data: dataUrl });
-          document.body.removeChild(canvas);
-          resolve();
-        }
-      };
-    });
+      if (cnt === layers.length) {
+        const dataUrl = canvas.toDataURL('image/png');
+        commit('saveMergedImageData', { data: dataUrl });
+        document.body.removeChild(canvas);
+        resolve();
+      }
+    };
   });
-};
+});
 
 const store = new Vuex.Store({
   state: {
@@ -108,6 +106,16 @@ const store = new Vuex.Store({
     clickedColor: null,
     fileName: '',
     tree: null,
+    scaleFactor: 1,
+    canvasImageData: null,
+    canvasTranslate: {
+      x: 0,
+      y: 0,
+    },
+    canvasPosition: {
+      x: 0,
+      y: 0,
+    },
     currentHoverLayerId: null,
     currentSelectedLayersId: null,
     currentSelectingLayersId: null,
@@ -127,6 +135,31 @@ const store = new Vuex.Store({
     saveCurrentHoverLayerId(state, { id }) {
       state.currentHoverLayerId = id;
     },
+    saveScaleFactor(state, { scaleFactor }) {
+      state.scaleFactor = scaleFactor;
+    },
+    saveCanvasTranslate(state, { diffX, diffY }) {
+      state.canvasTranslate.x = state.canvasPosition.x + diffX;
+      state.canvasTranslate.y = state.canvasPosition.y + diffY;
+    },
+    saveCanvasPosition(state) {
+      state.canvasPosition.x = state.canvasTranslate.x;
+      state.canvasPosition.y = state.canvasTranslate.y;
+    },
+    reset(state) {
+      state.scaleFactor = 1;
+      state.canvasTranslate = {
+        x: 0,
+        y: 0,
+      };
+      state.canvasPosition = {
+        x: 0,
+        y: 0,
+      };
+    },
+    saveCanvasImageData(state, { imageData }) {
+      state.canvasImageData = imageData;
+    },
     saveCurrentSelectedLayersId(state, { ids }) {
       state.currentSelectedLayersId = ids;
     },
@@ -137,7 +170,7 @@ const store = new Vuex.Store({
       state.layerImagePaths = layerImagePaths;
     },
     saveLayerAverageColor(state, { color }) {
-      state.color = hexAndRgba.rgbaToHex(color[0], color[1], color[2], color[3] / 255);
+      state.color = hexAndRgba.rgbaToHex(color[0], color[1], color[2], 1).slice(0, -2);
     },
     saveCurrentClickedColor(state, { color }) {
       state.clickedColor = color;
@@ -165,7 +198,7 @@ const store = new Vuex.Store({
       const selectedLayers = [];
 
       if (state.currentSelectedLayersId) {
-        state.currentSelectedLayersId.forEach(id => {
+        state.currentSelectedLayersId.forEach((id) => {
           const searchLayer = state.plainList.find(layer => layer.id === id);
 
           if (searchLayer.type === 'group') {
@@ -184,7 +217,7 @@ const store = new Vuex.Store({
       const selectingLayers = [];
 
       if (state.currentSelectingLayersId) {
-        state.currentSelectingLayersId.forEach(id => {
+        state.currentSelectingLayersId.forEach((id) => {
           const searchLayer = state.plainList.find(layer => layer.id === id);
 
           if (searchLayer.type === 'group') {
@@ -205,7 +238,7 @@ const store = new Vuex.Store({
     fetchLayerImage({ state, getters, commit }) {
       state.loading = true;
 
-      
+
       const layerPaths = getters.currentSelectedLayers
         .map(layer => getLayerPath(state.plainList, layer.id));
 
@@ -222,7 +255,7 @@ const store = new Vuex.Store({
       }).catch((err) => {
         console.log(err);
         state.loading = false;
-      })
+      });
     },
   },
 });

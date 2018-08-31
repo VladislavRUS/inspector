@@ -6,11 +6,16 @@
 </template>
 
 <script>
+import * as Modes from '../constants/modes';
+
 export default {
   name: 'ColorPicker',
-  props: ['imageData', 'x', 'y', 'w', 'h'],
   data() {
     return {
+      w: 20,
+      h: 20,
+      x: 0,
+      y: 0,
       canvas: null,
       context: null,
     };
@@ -24,19 +29,24 @@ export default {
     },
   },
   mounted() {
+    document.addEventListener('mousemove', this.mouseMoveListener);
     this.canvas = this.$refs.colorPickerCanvas;
     this.context = this.canvas.getContext('2d');
 
     this.loop();
   },
   methods: {
+    mouseMoveListener(event) {
+      this.x = event.clientX;
+      this.y = event.clientY;
+    },
     loop() {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      if (this.imageData) {
-        this.context.putImageData(this.imageData, 0, 0);
+      if (this.$store.state.canvasImageData) {
+        this.context.putImageData(this.$store.state.canvasImageData, 0, 0);
       }
 
-      requestAnimationFrame(this.loop);
+      setTimeout(this.loop.bind(this), 33);
     },
   },
 };

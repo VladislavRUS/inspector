@@ -42,7 +42,7 @@ export default {
       width: 50px;
       height: 50px;
       font-size: 30px;
-      font-weight: 300;
+      font-weight: 400;
       line-height: 50px;
       color: #2D2D2D;
     }

@@ -6,7 +6,7 @@
             v-for="item in instruments"
             v-bind:title="item.title"
             v-bind:class="{'_selected': isCurrentMode(item.mode)}"
-            @click="setMode(item.mode)">
+            @click="item.onClick ? item.onClick() : setMode(item.mode)">
           <img v-bind:src="item.icon">
         </li>
       </ul>
@@ -19,6 +19,7 @@ import selectIcon from '../assets/mouse-pointer-solid.svg';
 import rulerIcon from '../assets/ruler-solid.svg';
 import colorPickerIcon from '../assets/eye-dropper-solid.svg';
 import moveIcon from '../assets/arrows-alt-solid.svg';
+import redoIcon from '../assets/redo-alt-solid.svg';
 
 import * as Modes from '../constants/modes';
 
@@ -46,6 +47,11 @@ export default {
           title: 'Move',
           icon: moveIcon,
           mode: Modes.MOVE_MODE,
+        },
+        {
+          title: 'Reset transformations',
+          icon: redoIcon,
+          onClick: () => this.$store.commit('reset')
         },
       ],
     };
