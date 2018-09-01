@@ -245,6 +245,8 @@ export default {
     flex-direction: column;
     background-color: #fff;
     width: 250px;
+    height: 100%;
+    overflow-y: auto;
 
     &__loader {
         width: 250px;

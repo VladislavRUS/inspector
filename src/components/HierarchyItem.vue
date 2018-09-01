@@ -52,7 +52,11 @@ export default {
       this.isOpened = !this.isOpened;
     },
     onClick() {
-      this.toggleOpened();
+      if (this.item.children) {
+        this.toggleOpened();
+      } else {
+        this.isOpened = true;
+      }
 
       if (this.isOpened) {
         this.$store.commit('saveCurrentSelectedLayersId', { ids: [this.item.id] });

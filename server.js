@@ -58,8 +58,9 @@ app.post('/api/layer-image', async (req, res) => {
   for (let i = 0; i < paths.length; i++) {
     try {
       const path = paths[i];
+      console.log(path);
       const child = psd.tree().childrenAtPath(path)[0];
-      const layerPath = path.replace(/[^a-zA-Z0-9]/g, '');
+      const layerPath = path.join('_').replace(/[^a-zA-Z0-9]/g, '');
       const layerImagePath = `./psd/layer_${layerPath}.png`;
       
       let success;
@@ -125,7 +126,6 @@ const saveLayerImage = (child, layerImagePath) =>
         child.layer.image.saveAsPng(layerImagePath).then(() => {
           resolve(true);
         }).catch(err => {
-          console.log('err');
           resolve(false);
         });
       } catch(err){

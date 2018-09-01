@@ -1,8 +1,6 @@
 <template>
     <div class="header">
-      <div class="header__logo">
-        Inspector
-      </div>
+      <router-link class="header__logo" to="/">Inspector</router-link>
     </div>
 </template>
 
@@ -45,6 +43,7 @@ export default {
       font-weight: 400;
       line-height: 50px;
       color: #2D2D2D;
+      text-decoration: none;
     }
 
     &__title {

@@ -63,32 +63,33 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    top: 0;
+    top: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
 
     &__hierarchy {
       position: absolute;
-      left: 20px;
-      top: 100px;
-      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
+      left: 0;
+      top: 0px;
+      bottom: 0;
+      box-shadow: 0 1 10px -2px rgba(0, 0, 0, 0.3);
       z-index: 10;
     }
 
     &__canvas-preview {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      top: 100px;
-      width: 100%;
-      height: 100%;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 250px;
+      right: 250px;
     }
 
     &__export-preview {
       position: absolute;
-      top: 100px;
-      right: 20px;
+      top: 0px;
+      bottom: 0;
+      right: 0;
       box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
       z-index: 10;
     }

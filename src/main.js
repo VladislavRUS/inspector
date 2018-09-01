@@ -14,7 +14,6 @@ Vue.config.productionTip = false;
 Vue.use(Toasted);
 Vue.use(PortalVue);
 
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

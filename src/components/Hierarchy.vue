@@ -29,10 +29,11 @@ export default {
 </script>
 
 <style scoped lang="less">
+
     .hierarchy {
         background-color: #FFF;
         width: 250px;
-        max-height: 500px;
+        height: 100%;
         overflow-y: auto;
         padding-bottom: 10px;
 

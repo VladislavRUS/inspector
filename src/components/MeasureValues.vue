@@ -20,7 +20,7 @@ export default {
         const { start, end } = point;
         const style = {
           fontSize: `${parseInt(11 / this.scaleFactor, 10)}px`,
-          transform: `translate(${(start.x + end.x) / 2}px, ${(start.y + end.y) / 2}px)`,
+          transform: `translate3d(${(start.x + end.x) / 2}px, ${(start.y + end.y) / 2}px, 0) !important`,
         };
 
         const value = Math.sqrt(((start.x - end.x) ** 2) + ((start.y - end.y) ** 2));

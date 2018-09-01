@@ -21,6 +21,8 @@ const getPath = (plainList, path) => {
     path.push(parent);
     return getPath(plainList, path);
   }
+
+  return path;
 };
 
 const getAllLayers = (parent, plaintList, fillList) => {
@@ -42,7 +44,7 @@ const getLayerPath = (plainList, layerId) => {
   path.reverse().shift();
   path = path.map(element => element.name);
 
-  return path.join('/');
+  return path;
 };
 
 const fillPlainList = (plainList, element) => {
@@ -246,6 +248,11 @@ const store = new Vuex.Store({
         fileName: state.fileName,
         layerPaths,
       }).then((resp) => {
+        if (!resp.data.layerImagePaths.length) {
+          state.loading = false;
+          return;
+        }
+
         if (resp.data.layerImagePaths.length === 1) {
           commit('saveLayerAverageColor', { color: resp.data.layerImagePaths[0].color });
         }

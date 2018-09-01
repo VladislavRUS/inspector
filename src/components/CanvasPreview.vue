@@ -1,5 +1,5 @@
 <template>
-
+  <div class="wrapper">
     <div class="canvas-preview"
          v-bind:style="canvasStyle"
          @mousemove="canvasMouseMove"
@@ -23,6 +23,7 @@
                 @mouseleave="mouseLeave"></canvas>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -92,7 +93,7 @@ export default {
       },
       imageData: null,
       points: [],
-      scaleFactorStep: 0.04,
+      scaleFactorStep: 0.05,
       draggableValue: {},
       isMouseDown: false,
       mouseBeginCoords: null,
@@ -254,20 +255,39 @@ export default {
       this.mouseEndCoords = null;
     },
     mouseWheel(event) {
-      if (!event.ctrlKey) {
-        return;
-      }
       event.preventDefault();
-
-      let scaleFactor = this.scaleFactor;
+      let direction;
 
       if (event.wheelDelta < 0) {
-        scaleFactor -= this.scaleFactorStep;
+        direction = 'up';
       } else {
-        scaleFactor += this.scaleFactorStep;
+        direction = 'down'
       }
 
-      this.$store.commit('saveScaleFactor', { scaleFactor });
+      if (event.ctrlKey) {
+        let scaleFactor = this.scaleFactor;
+
+        if (direction === 'up') {
+          scaleFactor -= this.scaleFactorStep;
+        } else {
+          scaleFactor += this.scaleFactorStep;
+        }
+
+        this.$store.commit('saveScaleFactor', { scaleFactor });
+
+      } else {
+        const diffX = 0;
+        let diffY = 0;
+
+        if (direction === 'up') {
+          diffY = -15;
+        } else {
+          diffY = 15;
+        }
+        
+        this.$store.commit('saveCanvasTranslate', { diffX, diffY });
+        this.$store.commit('saveCanvasPosition');
+      }
     },
     mouseMove(event) {
       if (this.isSelectMode || this.isMeasureMode) {
@@ -573,7 +593,7 @@ export default {
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(startX, startY, width, height);
       this.drawCanvasCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
-      this.drawCanvasCtx.lineWidth = 1; // eslint-disable-line
+      this.drawCanvasCtx.lineWidth = 1 / this.scaleFactor; // eslint-disable-line
       this.drawCanvasCtx.stroke();
     },
     draw(child, isMeasureMode) {
@@ -589,7 +609,7 @@ export default {
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(x, y, width, height);
       this.drawCanvasCtx.strokeStyle = isMeasureMode ? '#ff3d3d' : '#41f4cd'; // eslint-disable-line
-      this.drawCanvasCtx.lineWidth = 1; // eslint-disable-line
+      this.drawCanvasCtx.lineWidth = 1 / this.scaleFactor; // eslint-disable-line
       this.drawCanvasCtx.stroke();
 
       if (isMeasureMode) {
@@ -612,7 +632,7 @@ export default {
       this.drawCanvasCtx.lineTo(parseInt(end.x) + 0.5, parseInt(end.y) + 0.5);
       this.drawCanvasCtx.closePath();
       this.drawCanvasCtx.strokeStyle = params.color || '#ff3d3d';
-      this.drawCanvasCtx.lineWidth = 1;
+      this.drawCanvasCtx.lineWidth = 1 / this.scaleFactor;
       if (params.lineDash) {
         this.drawCanvasCtx.setLineDash(params.lineDash);
       }
@@ -624,14 +644,16 @@ export default {
 </script>
 
 <style lang="less" scoped>
-  .canvas-restore {
-    position: fixed;
-    top: 200px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 50px;
-    opacity: 0.6;
+  .wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    // border-left: 3px solid rgba(0, 0, 0, 0.3);
+    // border-top: 3px solid rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .canvas-preview {
@@ -643,6 +665,7 @@ export default {
       height: 100%;
       box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
       transition: transform .2s ease;
+      transform-origin: top;
     }
 
     & ._color-picker {
