@@ -1,10 +1,11 @@
 <template>
-  <div class="wrapper" @mousewheel="mouseWheel">
+  <div class="wrapper" >
     <div class="canvas-preview"
-         v-bind:style="canvasStyle"
-         @mousemove="canvasMouseMove"
-         @mousedown="canvasMouseDown"
-         @mouseup="canvasMouseUp">
+        @mousewheel="mouseWheel"
+        v-bind:style="canvasStyle"
+        @mousemove="canvasMouseMove"
+        @mousedown="canvasMouseDown"
+        @mouseup="canvasMouseUp">
 
       <div class="canvas-preview__wrapper"
            v-bind:style="wrapperStyle">
@@ -136,7 +137,7 @@ export default {
       return {
         width: `${this.width}px`,
         height: `${this.height}px`,
-        transform: `scale(${this.scaleFactor})`,
+        transform: `scale(${this.scaleFactor})`
       };
     },
     scaleFactor() {
@@ -670,7 +671,7 @@ export default {
       height: 100%;
       box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
       transition: transform .2s ease;
-      transform-origin: top;
+      transform-origin: center center;
     }
 
     & ._color-picker {

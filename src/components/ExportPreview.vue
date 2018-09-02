@@ -16,7 +16,7 @@
     </div>
 
     <div class="export-preview__loader" v-if="loading">
-      <fade-loader color="#606060"></fade-loader>
+        <fade-loader color="#606060"></fade-loader>
     </div>
 
     <div v-if="!loading && imageData">
@@ -256,6 +256,11 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+
+        &-container {
+          width: 50px;
+          height: 50px;
+        }
     }
 
     &__styles {

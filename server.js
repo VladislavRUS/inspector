@@ -6,37 +6,44 @@ const app = express();
 const PORT = 4200;
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const average = require('image-average-color');
+const upload = multer({ dest: 'uploads/' })
 
 app.use(express.static(__dirname));
 app.use(cors());
-app.use(fileUpload());
 app.use(bodyParser());
 
 app.get('/', (req, res) => res.send('Server started!'));
 
-app.post('/api/upload', (req, res) => {
-    const fileNames = Object.keys(req.files);
-    const file = req.files[fileNames[0]];
-    const fileName = `${new Date().getTime()}_${file.name}`;
-    const filePath = `./psd/${fileName}`;
+app.post('/api/upload', upload.single('psd'), (req, res) => {
+    console.log('Uploaded');
 
-    file.mv(filePath, (err) => {
-        if (err) {
-          res.send(405);
-        }
+    //console.log(req.file);
 
-        const psd = PSD.fromFile(filePath);
-        psd.parse();
+    //return;
+
+    //const fileNames = Object.keys(req.files);
+    //const file = req.files[fileNames[0]];
+    //const filePath = `./psd/${fileName}`;
+    
+    // file.mv(filePath, (err) => {
+      //     if (err) {
+        //       res.send(405);
+        //     }
         
-        const tree = psd.tree().export();
+    const fileName = req.file.filename;
+    const psd = PSD.fromFile(req.file.path);
+    psd.parse();
+    
+    const tree = psd.tree().export();
 
-        const imagePath = filePath.replace('.psd', '.png');
+    const imagePath = `./psd/${fileName}.png`;
 
-        psd.image.saveAsPng(imagePath).then(() => {
-          res.send({tree, imagePath, fileName}).status(201);
-        });
+    psd.image.saveAsPng(imagePath).then(() => {
+      res.send({tree, imagePath, fileName}).status(201);
     });
+    //});
 });
 
 const getAvarageColor = (path) => new Promise((resolve, reject) => {
@@ -44,7 +51,7 @@ const getAvarageColor = (path) => new Promise((resolve, reject) => {
 });
 
 app.post('/api/layer-image', async (req, res) => {
-  const filePath = `./psd/${req.body.fileName}`;
+  const filePath = `./uploads/${req.body.fileName}`;
   const psd = PSD.fromFile(filePath);
   psd.parse();
 

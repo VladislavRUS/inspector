@@ -26,7 +26,7 @@ import vue2Dropzone from 'vue2-dropzone';
 import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 import SyncLoader from 'vue-spinner/src/SyncLoader';
 
-const MAX_FILE_SIZE_MB = 70;
+const MAX_FILE_SIZE_MB = 200;
 
 export default {
   name: 'Upload',
@@ -37,6 +37,7 @@ export default {
         acceptedFiles: '.psd',
         maxFilesize: MAX_FILE_SIZE_MB,
         method: 'post',
+        paramName: 'psd',
         previewsContainer: false,
         dictDefaultMessage: 'Drop file here',
       },
