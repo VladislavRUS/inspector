@@ -1,7 +1,7 @@
 <template>
     <div>
         <li class="hierarchy-item"
-            @click="onClick()"
+            @click="onClick"
             v-bind:style="styleObject"
             :class="{'_selected': isSelected}">
             <div class="hierarchy-item__arrow"
@@ -51,23 +51,29 @@ export default {
     toggleOpened() {
       this.isOpened = !this.isOpened;
     },
-    onClick() {
+    onClick(event) {
       if (this.item.children) {
         this.toggleOpened();
-      } else {
-        this.isOpened = true;
-      }
 
-      if (this.isOpened) {
-        this.$store.commit('saveCurrentSelectedLayersId', { ids: [this.item.id] });
+      } else {
+        let currentSelectedLayers
+
+        if (event.ctrlKey) {
+          currentSelectedLayers = this.$store.getters.currentSelectedLayers.concat([this.item]);
+          
+        } else {
+          currentSelectedLayers = [ this.item ];
+        }
+
+        this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
         this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
       }
     },
   },
   computed: {
     isSelected() {
-      return this.$store.getters.currentSelectedLayers.length === 1 &&
-        this.$store.getters.currentSelectedLayers[0].id === this.item.id;
+      return this.$store.getters.currentSelectedLayers && 
+        this.$store.getters.currentSelectedLayers.map(layer => layer.id).indexOf(this.item.id) !== -1;
     },
   },
 };
@@ -96,6 +102,8 @@ export default {
         height: 20px;
         transition: transform .2s ease;
         opacity: 0;
+        flex-shrink: 0;
+        flex-grow: 0;
 
         &._opened {
             transform: rotate(90deg) translate(-10px, -12px);

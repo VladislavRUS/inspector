@@ -25,8 +25,7 @@
       </div>
       <div class="export-preview__export">
         <a class="export-preview__export-btn" v-bind:href="imageSrc" download>
-          Export
-
+          Export ({{layersNumber}})
           <img v-bind:src="exportIcon">
         </a>
       </div>
@@ -109,6 +108,9 @@ export default {
       }
 
       return 0;
+    },
+    layersNumber() {
+      return this.$store.getters.currentSelectedLayers ? this.$store.getters.currentSelectedLayers.length : 0
     },
     height() {
       if (this.$store.getters.currentSelectedLayers) {

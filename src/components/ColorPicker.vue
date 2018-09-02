@@ -25,7 +25,11 @@ export default {
       return {
         left: `${this.x}px`,
         top: `${this.y}px`,
+        visibility: this.overCanvas ? 'visible' : 'hidden',
       };
+    },
+    overCanvas() {
+      return this.$store.state.mouseOverCanvas;
     },
   },
   mounted() {
@@ -42,6 +46,7 @@ export default {
     },
     loop() {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
       if (this.$store.state.canvasImageData) {
         this.context.putImageData(this.$store.state.canvasImageData, 0, 0);
       }

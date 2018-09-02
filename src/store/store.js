@@ -110,6 +110,7 @@ const store = new Vuex.Store({
     tree: null,
     scaleFactor: 1,
     canvasImageData: null,
+    mouseOverCanvas: false,
     canvasTranslate: {
       x: 0,
       y: 0,
@@ -139,6 +140,9 @@ const store = new Vuex.Store({
     },
     saveScaleFactor(state, { scaleFactor }) {
       state.scaleFactor = scaleFactor;
+    },
+    saveMouseOverCanvas(state, { overCanvas }) {
+      state.mouseOverCanvas = overCanvas;
     },
     saveCanvasTranslate(state, { diffX, diffY }) {
       state.canvasTranslate.x = state.canvasPosition.x + diffX;
