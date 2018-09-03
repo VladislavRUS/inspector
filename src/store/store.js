@@ -145,8 +145,13 @@ const store = new Vuex.Store({
       state.mouseOverCanvas = overCanvas;
     },
     saveCanvasTranslate(state, { diffX, diffY }) {
-      state.canvasTranslate.x = state.canvasPosition.x + diffX;
-      state.canvasTranslate.y = state.canvasPosition.y + diffY;
+      if (diffX) {
+        state.canvasTranslate.x = state.canvasPosition.x + diffX;
+      }
+
+      if (diffY) {
+        state.canvasTranslate.y = state.canvasPosition.y + diffY;
+      }
     },
     saveCanvasPosition(state) {
       state.canvasPosition.x = state.canvasTranslate.x;

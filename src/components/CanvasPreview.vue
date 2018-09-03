@@ -137,7 +137,7 @@ export default {
       return {
         width: `${this.width}px`,
         height: `${this.height}px`,
-        transform: `scale(${this.scaleFactor})`
+        transform: `scale(${this.scaleFactor})`,
       };
     },
     scaleFactor() {
@@ -261,7 +261,7 @@ export default {
       if (event.wheelDelta < 0) {
         direction = 'up';
       } else {
-        direction = 'down'
+        direction = 'down';
       }
 
       if (event.ctrlKey) {
@@ -276,9 +276,7 @@ export default {
         if (scaleFactor >= 0.2) {
           this.$store.commit('saveScaleFactor', { scaleFactor });
         }
-
       } else {
-        const diffX = 0;
         let diffY = 0;
 
         if (direction === 'up') {
@@ -286,8 +284,8 @@ export default {
         } else {
           diffY = 50;
         }
-        
-        this.$store.commit('saveCanvasTranslate', { diffX, diffY });
+
+        this.$store.commit('saveCanvasTranslate', { diffY });
         this.$store.commit('saveCanvasPosition');
       }
     },
