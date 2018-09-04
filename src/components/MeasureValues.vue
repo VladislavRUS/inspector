@@ -18,9 +18,10 @@ export default {
     measureValues() {
       return this.points.map((point) => {
         const { start, end } = point;
+        const fontSize = parseInt(11 / this.scaleFactor, 10);
         const style = {
-          fontSize: `${parseInt(11 / this.scaleFactor, 10)}px`,
-          transform: `translate3d(${(start.x + end.x) / 2}px, ${(start.y + end.y) / 2}px, 0) !important`,
+          fontSize: `${fontSize}px`,
+          transform: `translate(${parseInt((start.x + end.x) / 2, 10)}px, ${parseInt((start.y + end.y) / 2, 10)}px)`,
         };
 
         const value = Math.sqrt(((start.x - end.x) ** 2) + ((start.y - end.y) ** 2));
@@ -40,8 +41,9 @@ export default {
         text-align: center;
         border-radius: 2px;
         z-index: 100;
-        box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.45);
+        box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.55);
         pointer-events: none;
-        font-weight: bold;
+        font-weight: 600;
+        -webkit-font-smoothing: antialiased;
     }
 </style>

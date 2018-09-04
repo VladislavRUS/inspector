@@ -1,14 +1,13 @@
 const PSD = require('PSD');
 const fs = require('fs');
-const fileUpload = require('express-fileupload');
 const express = require('express');
 const app = express();
 const PORT = 4200;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
-const average = require('image-average-color');
-const upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: 'uploads/' });
+const Jimp = require('jimp');
 
 app.use(express.static(__dirname));
 app.use(cors());
@@ -17,21 +16,6 @@ app.use(bodyParser());
 app.get('/', (req, res) => res.send('Server started!'));
 
 app.post('/api/upload', upload.single('psd'), (req, res) => {
-    console.log('Uploaded');
-
-    //console.log(req.file);
-
-    //return;
-
-    //const fileNames = Object.keys(req.files);
-    //const file = req.files[fileNames[0]];
-    //const filePath = `./psd/${fileName}`;
-    
-    // file.mv(filePath, (err) => {
-      //     if (err) {
-        //       res.send(405);
-        //     }
-        
     const fileName = req.file.filename;
     const psd = PSD.fromFile(req.file.path);
     psd.parse();
@@ -43,11 +27,37 @@ app.post('/api/upload', upload.single('psd'), (req, res) => {
     psd.image.saveAsPng(imagePath).then(() => {
       res.send({tree, imagePath, fileName}).status(201);
     });
-    //});
 });
 
-const getAvarageColor = (path) => new Promise((resolve, reject) => {
-  average(path, (err, color) => resolve(color));
+const getAverageColor = (path) => new Promise((resolve, reject) => {
+  let cnt = 0;
+  let RED = 0;
+  let GREEN = 0;
+  let BLUE = 0;
+
+  Jimp.read(path, (err, image) => {
+    image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
+
+      const alpha = image.bitmap.data[idx + 3];
+
+      if (alpha !== 0) {
+        const red = image.bitmap.data[idx + 0];
+        const green = image.bitmap.data[idx + 1];
+        const blue = image.bitmap.data[idx + 2];
+
+        RED += red;
+        GREEN += green;
+        BLUE += blue;
+
+        cnt++;
+      }
+
+      if (x === image.bitmap.width - 1 && y === image.bitmap.height - 1) {
+        const average = [ RED / cnt, GREEN / cnt, BLUE / cnt];
+        resolve(average);
+      }
+    });
+  });
 });
 
 app.post('/api/layer-image', async (req, res) => {
@@ -60,12 +70,10 @@ app.post('/api/layer-image', async (req, res) => {
 
   const { width, height } = psd.tree();
 
-  console.log(width, height);
-
   for (let i = 0; i < paths.length; i++) {
     try {
       const path = paths[i];
-      console.log(path);
+
       const child = psd.tree().childrenAtPath(path)[0];
       const layerPath = path.join('_').replace(/[^a-zA-Z0-9]/g, '');
       const layerImagePath = `./psd/layer_${layerPath}.png`;
@@ -83,7 +91,7 @@ app.post('/api/layer-image', async (req, res) => {
           results.push({ src: layerImagePath.substring(2), x: child.left, y: child.top, width: child.width, height: child.height });
 
           if (paths.length === 1) {
-            results[0].color = await getAvarageColor(layerImagePath);
+            results[0].color = await getAverageColor(layerImagePath);
           }
       }
     } catch(err) {

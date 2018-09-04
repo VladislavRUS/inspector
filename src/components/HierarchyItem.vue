@@ -10,7 +10,8 @@
             </div>
             <div class="hierarchy-item__img">
                 <img src="../assets/folder-solid.svg" v-if="item.type === 'group'">
-                <img src="../assets/layer-group-solid.svg" v-if="item.type === 'layer'">
+                <img src="../assets/layer-group-solid.svg" v-if="item.type === 'layer' && !item.text">
+                <img src="../assets/font-solid.svg" v-if="item.type === 'layer' && item.text">
             </div>
 
             <div class="hierarchy-item__description">
@@ -54,15 +55,13 @@ export default {
     onClick(event) {
       if (this.item.children) {
         this.toggleOpened();
-
       } else {
-        let currentSelectedLayers
+        let currentSelectedLayers;
 
         if (event.ctrlKey) {
           currentSelectedLayers = this.$store.getters.currentSelectedLayers.concat([this.item]);
-          
         } else {
-          currentSelectedLayers = [ this.item ];
+          currentSelectedLayers = [this.item];
         }
 
         this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
@@ -72,7 +71,7 @@ export default {
   },
   computed: {
     isSelected() {
-      return this.$store.getters.currentSelectedLayers && 
+      return this.$store.getters.currentSelectedLayers &&
         this.$store.getters.currentSelectedLayers.map(layer => layer.id).indexOf(this.item.id) !== -1;
     },
   },

@@ -37,12 +37,12 @@
           <div class="export-preview__info-title">Size</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
-                 @click="copy(width)">
+                 @click="copy(`${width}px`)">
               W: {{width}}px
             </div>
             <div class="export-preview__info-value"
-                 @click="copy(height)">
-              H: {{height}}px
+                 @click="copy(`${height}px`)">
+              H: {{`${height}`}}px
             </div>
           </div>
         </div>
@@ -50,11 +50,11 @@
           <div class="export-preview__info-title">Position</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
-                 @click="copy(firstLayer.left)">
+                 @click="copy(`${firstLayer.left}px`)">
               X: {{firstLayer.left}}px
             </div>
             <div class="export-preview__info-value"
-                 @click="copy(firstLayer.top)">
+                 @click="copy(`${firstLayer.top}px`)">
               Y: {{firstLayer.top}}px
             </div>
           </div>
@@ -110,7 +110,7 @@ export default {
       return 0;
     },
     layersNumber() {
-      return this.$store.getters.currentSelectedLayers ? this.$store.getters.currentSelectedLayers.length : 0
+      return this.$store.getters.currentSelectedLayers ? this.$store.getters.currentSelectedLayers.length : 0;
     },
     height() {
       if (this.$store.getters.currentSelectedLayers) {
@@ -164,7 +164,12 @@ export default {
       if (this.firstLayer.text) {
         styles.push({
           key: 'font-family',
-          value: `${this.firstLayer.text.font.name}`,
+          value: `${this.firstLayer.text.font.names.slice(0, 2).join(', ')}`,
+        });
+
+        styles.push({
+          key: 'font-weight',
+          value: `${this.firstLayer.text.font.weights[0]}`,
         });
 
         styles.push({
@@ -303,6 +308,8 @@ export default {
 
         &._value {
           color: #6c6c6c;
+          text-align: right;
+          word-break: break-word;
         }
 
         &-color {

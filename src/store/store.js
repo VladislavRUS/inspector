@@ -1,11 +1,9 @@
 /* eslint-disable consistent-return */
-import * as hexAndRgba from 'hex-and-rgba/index';
 import UUID from 'uuid/v1';
 import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
 import * as Modes from '../constants/modes';
-
 
 Vue.use(Vuex);
 
@@ -36,6 +34,14 @@ const getAllLayers = (parent, plaintList, fillList) => {
     });
   }
 };
+
+const componentToHex = (c) => {
+  const hex = c.toString(16);
+  return hex.length === 1 ? `0${hex}` : hex;
+};
+
+const rgbToHex = (r, g, b) => `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+
 
 const getLayerPath = (plainList, layerId) => {
   let path = [plainList.find(layer => layer.id === layerId)];
@@ -90,6 +96,7 @@ const saveToCanvas = (layers, commit) => new Promise((resolve, reject) => {
       if (cnt === layers.length) {
         const dataUrl = canvas.toDataURL('image/png');
         commit('saveMergedImageData', { data: dataUrl });
+
         document.body.removeChild(canvas);
         resolve();
       }
@@ -172,16 +179,21 @@ const store = new Vuex.Store({
       state.canvasImageData = imageData;
     },
     saveCurrentSelectedLayersId(state, { ids }) {
-      state.currentSelectedLayersId = ids;
+      const set = new Set();
+      ids.forEach(id => set.add(id));
+      state.currentSelectedLayersId = [...set];
     },
     saveCurrentSelectingLayersId(state, { ids }) {
-      state.currentSelectingLayersId = ids;
+      const set = new Set();
+      ids.forEach(id => set.add(id));
+      state.currentSelectingLayersId = [...set];
     },
     saveLayerImagePaths(state, { layerImagePaths }) {
       state.layerImagePaths = layerImagePaths;
     },
     saveLayerAverageColor(state, { color }) {
-      state.color = hexAndRgba.rgbaToHex(color[0], color[1], color[2], 1).slice(0, -2);
+      state.color = rgbToHex(color[0], color[1], color[2]);
+      console.log(state.color);
     },
     saveCurrentClickedColor(state, { color }) {
       state.clickedColor = color;
@@ -199,7 +211,7 @@ const store = new Vuex.Store({
         return state.plainList.find(layer => layer.id === state.currentHoverLayerId);
       }
     },
-    color: state => (state.color ? state.color : []),
+    color: state => state.color || '',
     currentClickedLayer: (state) => {
       if (state.currentClickedLayerId) {
         return state.plainList.find(layer => layer.id === state.currentClickedLayerId);
@@ -222,7 +234,16 @@ const store = new Vuex.Store({
         });
       }
 
-      return selectedLayers;
+      const uniqueLayers = [];
+      selectedLayers.forEach((layer) => {
+        const exists = !!uniqueLayers.find(uLayer => uLayer.id === layer.id);
+
+        if (!exists) {
+          uniqueLayers.push(layer);
+        }
+      });
+
+      return uniqueLayers;
     },
     currentSelectingLayers: (state) => {
       const selectingLayers = [];
@@ -265,6 +286,7 @@ const store = new Vuex.Store({
         if (resp.data.layerImagePaths.length === 1) {
           commit('saveLayerAverageColor', { color: resp.data.layerImagePaths[0].color });
         }
+
         saveToCanvas(resp.data.layerImagePaths, commit).then(() => {
           state.loading = false;
         });
