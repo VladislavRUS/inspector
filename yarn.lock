@@ -5522,9 +5522,9 @@ prr@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"
 
-psd@^3.2.0:
+"psd@git+https://github.com/meltingice/psd.js":
   version "3.2.0"
-  resolved "https://registry.yarnpkg.com/psd/-/psd-3.2.0.tgz#d721c40207d4c99d82fee4ae2d7cfca4fb073da8"
+  resolved "git+https://github.com/meltingice/psd.js#fc6e3f0938a1b87da1191133787c5f2c2bdd67d9"
   dependencies:
     coffee-script "~ 1.7.1"
     coffeescript-module "~ 0.2.1"
