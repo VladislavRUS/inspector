@@ -38,8 +38,7 @@ export default {
         maxFilesize: MAX_FILE_SIZE_MB,
         method: 'post',
         paramName: 'psd',
-        previewsContainer: false,
-        dictDefaultMessage: 'Drop file here',
+        previewsContainer: false
       },
       loading: false,
     };
@@ -70,9 +69,6 @@ export default {
       this.$toasted.error(`Too big file! Should be less than ${MAX_FILE_SIZE_MB}mb`, {
         duration: 2000,
       });
-    },
-    onUploadProgress(file, progress) {
-      console.log(progress);
     },
   },
   components: {
