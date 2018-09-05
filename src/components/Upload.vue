@@ -6,7 +6,6 @@
           id="dropzone"
           :options="dropzoneOptions"
           v-show="!loading"
-          @vdropzone-upload-progress="onUploadProgress"
           @vdropzone-file-added="onAdded"
           @vdropzone-max-files-exceeded="onExceed"
           @vdropzone-success="onSuccess"

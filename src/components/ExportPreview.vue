@@ -20,7 +20,7 @@
     </div>
 
     <div v-if="!loading && imageData">
-      <div class="export-preview__image">
+      <div class="export-preview__image" @click="showImage">
         <img :src="imageSrc" v-bind:style="styleObject"/>
       </div>
       <div class="export-preview__export">
@@ -227,7 +227,7 @@ export default {
         duration: 2000,
       });
       document.body.removeChild(textarea);
-    },
+    }
   },
   components: {
     FadeLoader,
@@ -392,7 +392,8 @@ export default {
       justify-content: center;
       align-items: center;
       padding: 10px;
-
+      cursor: pointer;
+    
       &:after {
         content: "";
         position: absolute;
@@ -406,7 +407,6 @@ export default {
       }
 
       &:hover {
-        background-color: red;
         animation-name: backgroundAnimation;
         animation-duration: 8s;
         animation-timing-function: linear;

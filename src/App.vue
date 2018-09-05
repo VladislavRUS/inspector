@@ -3,6 +3,7 @@
     <Header/>
     <router-view/>
     <portal-target name="color-picker"></portal-target>
+    <modals-container/>
   </div>
 </template>
 
