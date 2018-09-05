@@ -53,7 +53,7 @@ const getAverageColor = (path) => new Promise((resolve, reject) => {
       }
 
       if (x === image.bitmap.width - 1 && y === image.bitmap.height - 1) {
-        const average = [ RED / cnt, GREEN / cnt, BLUE / cnt];
+        const average = [ parseInt(RED / cnt), parseInt(GREEN / cnt), parseInt(BLUE / cnt)];
         resolve(average);
       }
     });

@@ -654,8 +654,6 @@ export default {
     right: 0;
     top: 0;
     bottom: 0;
-    // border-left: 3px solid rgba(0, 0, 0, 0.3);
-    // border-top: 3px solid rgba(0, 0, 0, 0.3);
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -669,7 +667,7 @@ export default {
       height: 100%;
       box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
       transition: transform .2s ease;
-      transform-origin: center center;
+      transform-origin: center top;
     }
 
     & ._color-picker {

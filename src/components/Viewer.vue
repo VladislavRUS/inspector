@@ -73,7 +73,7 @@ export default {
       left: 0;
       top: 0px;
       bottom: 0;
-      box-shadow: 0 1 10px -2px rgba(0, 0, 0, 0.3);
+      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
       z-index: 10;
     }
 
