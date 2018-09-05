@@ -605,10 +605,10 @@ export default {
         return;
       }
 
-      const x = parseInt(child.left) + 0.5;
-      const y = parseInt(child.top) + 0.5;
-      const width = parseInt(child.right - x);
-      const height = parseInt(child.bottom - y);
+      const x = parseInt(child.left, 10) + 0.5;
+      const y = parseInt(child.top, 10) + 0.5;
+      const width = parseInt(child.right - x, 10);
+      const height = parseInt(child.bottom - y, 10);
 
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(x, y, width + 1, height + 1);
@@ -632,8 +632,8 @@ export default {
     drawLine(start, end, params = {}) {
       this.drawCanvasCtx.save();
       this.drawCanvasCtx.beginPath();
-      this.drawCanvasCtx.moveTo(parseInt(start.x) + 0.5, parseInt(start.y) + 0.5);
-      this.drawCanvasCtx.lineTo(parseInt(end.x) + 0.5, parseInt(end.y) + 0.5);
+      this.drawCanvasCtx.moveTo(parseInt(start.x, 10) + 0.5, parseInt(start.y, 10) + 0.5);
+      this.drawCanvasCtx.lineTo(parseInt(end.x, 10) + 0.5, parseInt(end.y, 10) + 0.5);
       this.drawCanvasCtx.closePath();
       this.drawCanvasCtx.strokeStyle = params.color || '#ff3d3d';
       this.drawCanvasCtx.lineWidth = 1 / this.scaleFactor;
