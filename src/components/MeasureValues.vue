@@ -5,7 +5,7 @@
             v-if="mValue.value > 0"
             :key="index"
             :style="mValue.style">
-            {{mValue.value}} px
+            {{mValue.value}}
         </div>
     </div>
 </template>
@@ -43,7 +43,7 @@ export default {
         z-index: 100;
         box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.55);
         pointer-events: none;
-        font-weight: 600;
+        font-weight: 300;
         -webkit-font-smoothing: antialiased;
     }
 </style>

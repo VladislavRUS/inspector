@@ -193,7 +193,6 @@ const store = new Vuex.Store({
     },
     saveLayerAverageColor(state, { color }) {
       state.color = rgbToHex(color[0], color[1], color[2]);
-      console.log(state.color);
     },
     saveCurrentClickedColor(state, { color }) {
       state.clickedColor = color;
