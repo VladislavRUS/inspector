@@ -3,7 +3,6 @@
     <Header/>
     <router-view/>
     <portal-target name="color-picker"></portal-target>
-    <modals-container/>
   </div>
 </template>
 
@@ -20,5 +19,6 @@ export default {
   .app {
     width: 100%;
     height: 100%;
+    background: #fff;
   }
 </style>

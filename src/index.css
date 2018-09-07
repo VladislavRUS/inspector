@@ -4,8 +4,7 @@ body {
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: #f0f0f0;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
   overflow: hidden;
 }
 
@@ -21,8 +20,9 @@ ul {
 .toast-custom {
   font-size: 14px !important;
   font-weight: 400 !important;
-  background-color: #6c6c6c !important;
-  font-family: 'Roboto', sans-serif !important;
+  color: #fff;
+  background-color: #000 !important;
+  font-family: 'Ubuntu', sans-serif !important;
   width: 200px !important;
   border-radius: 0 !important;
 }

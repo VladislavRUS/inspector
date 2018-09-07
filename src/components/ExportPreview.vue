@@ -16,11 +16,11 @@
     </div>
 
     <div class="export-preview__loader" v-if="loading">
-        <fade-loader color="#606060"></fade-loader>
+        <fade-loader color="#000"></fade-loader>
     </div>
 
     <div v-if="!loading && imageData">
-      <div class="export-preview__image" @click="showImage">
+      <div class="export-preview__image">
         <img :src="imageSrc" v-bind:style="styleObject"/>
       </div>
       <div class="export-preview__export">
@@ -34,11 +34,11 @@
     <div class="export-preview__info-wrapper" v-if="firstLayer">
       <div class="export-preview__info">
         <div class="export-preview__info-item">
-          <div class="export-preview__info-title">Size</div>
+          <div class="export-preview__info-title">Size:</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
                  @click="copy(`${width}px`)">
-              W: {{width}}px
+              W: {{width}}px,
             </div>
             <div class="export-preview__info-value"
                  @click="copy(`${height}px`)">
@@ -47,11 +47,11 @@
           </div>
         </div>
         <div class="export-preview__info-item" v-if="singleLayer">
-          <div class="export-preview__info-title">Position</div>
+          <div class="export-preview__info-title">Position:</div>
           <div class="export-preview__info-values">
             <div class="export-preview__info-value"
                  @click="copy(`${firstLayer.left}px`)">
-              X: {{firstLayer.left}}px
+              X: {{firstLayer.left}}px,
             </div>
             <div class="export-preview__info-value"
                  @click="copy(`${firstLayer.top}px`)">
@@ -110,7 +110,9 @@ export default {
       return 0;
     },
     layersNumber() {
-      return this.$store.getters.currentSelectedLayers ? this.$store.getters.currentSelectedLayers.length : 0;
+      return this.$store.getters.currentSelectedLayers
+        ? this.$store.getters.currentSelectedLayers.length
+        : 0;
     },
     height() {
       if (this.$store.getters.currentSelectedLayers) {
@@ -227,7 +229,7 @@ export default {
         duration: 2000,
       });
       document.body.removeChild(textarea);
-    }
+    },
   },
   components: {
     FadeLoader,
@@ -254,6 +256,7 @@ export default {
     width: 250px;
     height: 100%;
     overflow-y: auto;
+    padding-top: 10px;
 
     &__loader {
         width: 250px;
@@ -270,7 +273,7 @@ export default {
 
     &__styles {
       margin: 10px;
-      background-color: #F0F0F0;
+      background-color: #eaeaea;
       border: 1px solid #bababa;
 
       &-title {
@@ -278,7 +281,6 @@ export default {
         margin-bottom: 5px;
         font-size: 14px;
         font-weight: bold;
-        font-family: monospace;
       }
 
       &-table {
@@ -329,7 +331,6 @@ export default {
       display: flex;
       flex-direction: column;
       padding: 10px 20px;
-      font-family: monospace;
 
       &-values {
         display: flex;
@@ -350,6 +351,8 @@ export default {
       }
 
       &-value {
+        font-size: 14px;
+        font-weight: 300;
         cursor: pointer;
 
         &:hover {
@@ -365,18 +368,20 @@ export default {
     &__text {
       width: 100%;
       height: auto;
-      padding: 10px;
+      padding: 0 10px 10px 10px;
       box-sizing: border-box;
 
       &-value {
+        cursor: text;
+        margin-bottom: 5px;
         padding: 10px;
         width: 100%;
         min-height: 100px;
         color: black;
-        font-size: 14px;
+        font-size: 16px;
         box-sizing: border-box;
         outline: none;
-        background-color: #F0F0F0;
+        background-color: #eaeaea;
         border: 1px solid #bababa;
         resize: none;
       }
@@ -384,16 +389,17 @@ export default {
 
     &__image {
       position: relative;
-      background-image: url('../assets/transparent-bg.png');
-      width: 100%;
-      height: 250px;
-      box-sizing: border-box;
+      padding: 10px;
+      margin: 0 auto 10px auto;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 10px;
-      cursor: pointer;
-    
+      width: 230px;
+      height: 250px;
+      background-image: url('../assets/transparent-bg.png');
+      box-sizing: border-box;
+      border: 1px solid #bababa;
+
       &:after {
         content: "";
         position: absolute;
@@ -408,13 +414,13 @@ export default {
 
       &:hover {
         animation-name: backgroundAnimation;
-        animation-duration: 8s;
+        animation-duration: 10s;
         animation-timing-function: linear;
         animation-direction: alternate;
         animation-iteration-count: infinite;
 
         &:after {
-          opacity :1;
+          opacity: 1;
         }
       }
 
@@ -437,16 +443,16 @@ export default {
         display: flex;
         align-items: center;
         padding: 7px 20px;
-        background-color: #606060;
+        background-color: #000;
         outline: none;
         border: 1px solid #606060;
         color: #fff;
         cursor: pointer;
         text-decoration: none;
-        font-size: 14px;
-        font-weight: 400;
+        font-size: 12px;
+        font-weight: 300;
+        text-transform: uppercase;
         line-height: 100%;
-        box-shadow: 0 1px 5px -2px rgba(0, 0, 0, 0.3);
 
         & img {
           margin-left: auto;
@@ -456,11 +462,11 @@ export default {
         }
 
         &:hover {
-          background-color: #4b4b4b;
+          opacity: 0.8;
         }
 
         &:active {
-          background-color: #3a3a3a;
+          opacity: 0.9;
         }
       }
     }

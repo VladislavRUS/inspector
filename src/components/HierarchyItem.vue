@@ -72,7 +72,8 @@ export default {
   computed: {
     isSelected() {
       return this.$store.getters.currentSelectedLayers &&
-        this.$store.getters.currentSelectedLayers.map(layer => layer.id).indexOf(this.item.id) !== -1;
+        this.$store.getters.currentSelectedLayers
+          .map(layer => layer.id).indexOf(this.item.id) !== -1;
     },
   },
 };
@@ -97,8 +98,8 @@ export default {
     &__arrow {
         padding-left: 10px;
         display: inline-block;
-        width: 20px;
-        height: 20px;
+        width: 15px;
+        height: 15px;
         transition: transform .2s ease;
         opacity: 0;
         flex-shrink: 0;
@@ -110,7 +111,7 @@ export default {
 
         &._visible {
           padding-left: 20px;
-          opacity: 0.6;
+          opacity: 0.9;
         }
     }
 
@@ -122,8 +123,10 @@ export default {
     &__description {
         padding-top: 5px;
         padding-left: 15px;
-        color: #606060;
+        padding-bottom: 4px;
+        color: #2d2d2d;
         white-space: nowrap;
+        font-size: 12px;
         overflow: hidden;
         text-overflow: ellipsis;
     }
@@ -131,18 +134,18 @@ export default {
     &__visibility {
         margin-left: auto;
         margin-right: 10px;
-        width: 20px;
-        height: 20px;
-        opacity: 0.6;
+        width: 15px;
+        height: 15px;
+        opacity: 0.3;
     }
 
     &__img {
         flex-shrink: 0;
         flex-grow: 0;
-        padding-left: 15px;
-        width: 20px;
-        height: 20px;
-        opacity: 0.6;
+        padding-left: 7px;
+        width: 15px;
+        height: 15px;
+        opacity: 0.9;
     }
 }
 </style>

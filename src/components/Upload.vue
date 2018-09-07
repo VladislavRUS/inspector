@@ -13,7 +13,7 @@
         </vue-dropzone>
       </div>
       <div class="upload__loader" v-if="loading">
-        <sync-loader color="#6c6c6c"></sync-loader>
+        <sync-loader color="#000"></sync-loader>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@ export default {
         maxFilesize: MAX_FILE_SIZE_MB,
         method: 'post',
         paramName: 'psd',
-        previewsContainer: false
+        previewsContainer: false,
       },
       loading: false,
     };
@@ -82,18 +82,20 @@ export default {
   #dropzone {
     height: 100%;
     padding: 200px;
-    background-color: #FFF;
-    border: 2px dashed #A0A0A0;
-    color: #A0A0A0;
+    background-color: transparent;
+    border: 2px dashed #2d2d2d;
+    color: #2d2d2d;
+    box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.3);
 
     &:hover {
-      background-color: #DADADA;
+      background-color: rgba(0, 0, 0, 0.1);
     }
   }
 
   .dropzone .dz-message {
     margin: 0;
-    font-weight: bold;
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: 500;
   }
 
   .upload {

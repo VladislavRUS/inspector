@@ -51,7 +51,7 @@ export default {
         {
           title: 'Reset transformations',
           icon: redoIcon,
-          onClick: () => this.$store.commit('reset')
+          onClick: () => this.$store.commit('reset'),
         },
       ],
     };
@@ -81,13 +81,26 @@ export default {
           list-style-type: none;
 
           &-item {
-            padding-bottom: 2px;
+            position: relative;
+            padding-bottom: 5px;
             width: 23px;
             height: 23px;
             transition: transform .2s ease;
-            opacity: 0.6;
+            opacity: 0.9;
             user-select: none;
             cursor: pointer;
+
+            &:after {
+              content: "";
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: -3px;
+              height: 2px;
+              background-color: #000;
+              transform: translateY(10px);
+              opacity: 0;
+            }
 
             & + & {
               margin-left: 20px;
@@ -97,8 +110,13 @@ export default {
               opacity: 0.9;
             }
 
-            &:hover {
+            &._selected:after {
+              transform: translateY(-3px);
               opacity: 1;
+            }
+
+            &:hover {
+              opacity: 0.9;
             }
           }
         }

@@ -34,8 +34,9 @@ export default {
         background-color: #FFF;
         width: 250px;
         height: 100%;
-        overflow-y: auto;
+        padding-top: 10px;
         padding-bottom: 10px;
+        overflow-y: auto;
 
         &__list {
             margin: 0;

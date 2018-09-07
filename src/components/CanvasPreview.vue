@@ -243,6 +243,8 @@ export default {
           this.$store.commit('saveCurrentSelectedLayersId', { ids: currentSelectedLayers.map(layer => layer.id) });
           this.$store.dispatch('fetchLayerImage', { state: this.$store.state });
         }
+
+        this.points = [];
       } else if (this.isColorPickerMode) {
         const { x, y } = this.getCoordinates(event);
         const data = this.previewCanvasCtx.getImageData(x, y, 1, 1).data;
@@ -322,6 +324,26 @@ export default {
 
         this.$store.commit('saveCanvasImageData', { imageData: this.imageData });
       }
+
+      const currentHoverLayer = this.$store.getters.currentHoverLayer;
+      const currentSelectedLayers = this.$store.getters.currentSelectedLayers;
+
+      if (this.isMeasureMode && currentHoverLayer) {
+        const firstCoords = this.getLayerCoordinates(currentHoverLayer);
+        const secondCoords = currentSelectedLayers.length === 1
+          ? this.getLayerCoordinates(currentSelectedLayers[0])
+          : this.getLayerCoordinates(getBoundingRect(currentSelectedLayers));
+
+        this.points = [];
+
+        this.points.push(
+          ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+        );
+
+        this.points.push(
+          ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
+        );
+      }
     },
     mouseEnter() {
       if (this.isColorPickerMode) {
@@ -379,22 +401,7 @@ export default {
           const boundingRect = getBoundingRect(currentSelectedLayers);
           this.draw(boundingRect, this.isMeasureMode);
 
-          if (this.isMeasureMode && currentHoverLayer) {
-            const firstCoords = this.getLayerCoordinates(currentHoverLayer);
-            const secondCoords = currentSelectedLayers.length === 1
-              ? this.getLayerCoordinates(currentSelectedLayers[0])
-              : this.getLayerCoordinates(getBoundingRect(currentSelectedLayers));
-
-            this.points = [];
-
-            this.points.push(
-              ...this.getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
-            );
-
-            this.points.push(
-              ...this.getVerticalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer),
-            );
-
+          if (!this.isMouseOut && this.isMeasureMode) {
             this.points.forEach((point) => {
               this.drawLine(point.start, point.end);
             });
@@ -402,7 +409,7 @@ export default {
         }
       }
 
-      setTimeout(this.loop.bind(this), 33);
+      setTimeout(this.loop.bind(this), 50);
     },
     getHorizontalMeasureLinePoints(firstCoords, secondCoords, currentHoverLayer) {
       const closesToLeft =
@@ -588,14 +595,14 @@ export default {
       };
     },
     drawRect(from, to) {
-      const startX = parseInt(Math.min(from.x, to.x)) + 0.5;
-      const startY = parseInt(Math.min(from.y, to.y)) + 0.5;
-      const width = parseInt(Math.abs(from.x - to.x));
-      const height = parseInt(Math.abs(from.y - to.y));
+      const startX = parseInt(Math.min(from.x, to.x), 10) + 0.5;
+      const startY = parseInt(Math.min(from.y, to.y), 10) + 0.5;
+      const width = parseInt(Math.abs(from.x - to.x), 10);
+      const height = parseInt(Math.abs(from.y - to.y), 10);
       this.drawCanvasCtx.beginPath();
       this.drawCanvasCtx.rect(startX, startY, width, height);
-      this.drawCanvasCtx.strokeStyle = 'rgba(0, 0, 255, 0.4)'; // eslint-disable-line
-      this.drawCanvasCtx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+      this.drawCanvasCtx.strokeStyle = '#41f4cd'; // eslint-disable-line
+      this.drawCanvasCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       this.drawCanvasCtx.lineWidth = 1 / this.scaleFactor; // eslint-disable-line
       this.drawCanvasCtx.stroke();
       this.drawCanvasCtx.fill();

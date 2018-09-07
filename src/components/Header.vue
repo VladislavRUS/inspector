@@ -39,10 +39,10 @@ export default {
       padding-left: 20px;
       width: 50px;
       height: 50px;
-      font-size: 30px;
+      font-size: 32px;
       font-weight: 400;
       line-height: 50px;
-      color: #2D2D2D;
+      color: #000;
       text-decoration: none;
     }
 
@@ -52,7 +52,7 @@ export default {
       padding-left: 20px;
       line-height: 50px;
       font-size: 16px;
-      color: #5c5c5c;
+      color: #fff;
       font-weight: bold;
     }
   }
