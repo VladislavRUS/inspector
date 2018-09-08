@@ -24,7 +24,7 @@
         <img :src="imageSrc" v-bind:style="styleObject"/>
       </div>
       <div class="export-preview__export">
-        <a class="export-preview__export-btn" v-bind:href="imageSrc" download>
+        <a class="export-preview__export-btn" v-bind:href="imageSrc" v-bind:download="name">
           Export ({{layersNumber}})
           <img v-bind:src="exportIcon">
         </a>
@@ -143,6 +143,9 @@ export default {
     firstLayer() {
       return this.$store.getters.currentSelectedLayers &&
         this.$store.getters.currentSelectedLayers[0];
+    },
+    name() {
+      return this.$store.getters.currentSelectedLayers && (this.$store.getters.currentSelectedLayers.map(layer => layer.name).join('-') + '.png') || '';
     },
     imageData() {
       return this.$store.getters.imageData;
