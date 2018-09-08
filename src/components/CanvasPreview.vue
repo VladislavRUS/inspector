@@ -1,9 +1,7 @@
 <template>
-  <div class="wrapper" >
+  <div class="wrapper" @mousemove="canvasMouseMove" @mousewheel="mouseWheel">
     <div class="canvas-preview"
-        @mousewheel="mouseWheel"
         v-bind:style="canvasStyle"
-        @mousemove="canvasMouseMove"
         @mousedown="canvasMouseDown"
         @mouseup="canvasMouseUp">
 
@@ -80,7 +78,6 @@ export default {
   props: ['imagePath', 'width', 'height'],
   data() {
     return {
-      isColorPickerVisible: false,
       colorPickerSize: {
         width: 25,
         height: 25,
@@ -252,6 +249,7 @@ export default {
         this.copyColor(`#${hex}`);
       }
 
+      this.$store.commit('saveCanvasPosition');
       this.isMouseDown = false;
       this.mouseBeginCoords = null;
       this.mouseEndCoords = null;
@@ -299,7 +297,10 @@ export default {
               this.$store.state.plainList,
               this.getCoordinates(event),
             );
-          this.$store.commit('saveCurrentHoverLayerId', { id: currentHoverLayer.id });
+
+            if (currentHoverLayer) {
+              this.$store.commit('saveCurrentHoverLayerId', { id: currentHoverLayer.id });
+            }
         } else {
           this.mouseEndCoords = this.getCoordinates(event);
 
@@ -346,20 +347,14 @@ export default {
       }
     },
     mouseEnter() {
-      if (this.isColorPickerMode) {
-        this.isColorPickerVisible = true;
-      }
-
       this.isMouseOut = false;
       this.$store.commit('saveMouseOverCanvas', { overCanvas: true });
     },
     mouseLeave() {
-      this.$store.commit('saveMouseOverCanvas', { id: null });
-
-      if (this.isColorPickerMode) {
-        this.isColorPickerVisible = false;
-      }
+      this.isDragging = false;
       this.isMouseOut = true;
+      this.$store.commit('saveMouseOverCanvas', { id: null });
+      this.$store.commit('saveCanvasPosition');
       this.$store.commit('saveCurrentHoverLayerId', { overCanvas: false });
     },
     copyColor(value) {

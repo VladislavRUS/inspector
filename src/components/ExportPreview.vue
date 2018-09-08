@@ -167,9 +167,11 @@ export default {
       });
 
       if (this.firstLayer.text) {
+        const uniqueFonts = [...new Set(this.firstLayer.text.font.names)].slice(0, 2);
+
         styles.push({
           key: 'font-family',
-          value: `${this.firstLayer.text.font.names.slice(0, 2).join(', ')}`,
+          value: `${uniqueFonts.join(', ')}`,
         });
 
         styles.push({
