@@ -273,7 +273,7 @@ const store = new Vuex.Store({
       const layerPaths = getters.currentSelectedLayers
         .map(layer => getLayerPath(state.plainList, layer.id));
 
-      axios.post('/api/layer-image', {
+      axios.post('/inspector/api/layer-image', {
         fileName: state.fileName,
         layerPaths,
       }).then((resp) => {

@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       dropzoneOptions: {
-        url: '/api/upload',
+        url: '/inspector/api/upload',
         acceptedFiles: '.psd',
         maxFilesize: MAX_FILE_SIZE_MB,
         method: 'post',

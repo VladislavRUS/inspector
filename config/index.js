@@ -9,13 +9,19 @@ module.exports = {
 
     // Paths
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: '/inspector',
     proxyTable: {
-      '/psd': {
-        target: 'http://localhost:4200'
+      '/inspector/api': {
+        target: 'http://localhost:4300',
+        pathRewrite: {
+          '^/inspector': ''
+        }
       },
-      '/api': {
-        target: 'http://localhost:4200'
+      '/inspector/layers': {
+        target: 'http://localhost:4300',
+        pathRewrite: {
+          '^/inspector': ''
+        }
       }
     },
 
@@ -45,7 +51,7 @@ module.exports = {
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
-    cacheBusting: true,
+    cacheBusting: false,
 
     cssSourceMap: true
   },
@@ -57,7 +63,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: '/inspector',
 
     /**
      * Source Maps

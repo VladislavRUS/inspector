@@ -14,12 +14,9 @@ const moment = require('moment');
 
 app.use(express.static(__dirname + '/dist'));
 app.use('/layers', express.static(__dirname + '/layers'));
-app.use(express.static(__dirname));
-
-app.use(cors());
 app.use(bodyParser());
 
-app.get('/', (req, res) => res.sendFile('/dist/index.html'));
+app.get('/inspector', (req, res) => res.sendFile(__dirname + '/dist/index.html'));
 
 app.post('/api/upload', upload.single('psd'), (req, res) => {
   deleteOld();
@@ -35,7 +32,7 @@ app.post('/api/upload', upload.single('psd'), (req, res) => {
   psd.image.saveAsPng(imagePath).then(() => {
     res.send({
       tree,
-      imagePath,
+      imagePath: './inspector' + imagePath.slice(1),
       fileName
     }).status(201);
   });
@@ -68,7 +65,7 @@ app.post('/api/layer-image', async (req, res) => {
 
       if (success) {
         results.push({
-          src: layerImagePath.substring(2),
+          src: '/inspector/' + layerImagePath.substring(2),
           x: child.left,
           y: child.top,
           width: child.width,
