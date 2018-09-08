@@ -7,13 +7,18 @@
           :options="dropzoneOptions"
           v-show="!loading"
           @vdropzone-file-added="onAdded"
+          @vdropzone-upload-progress="onProgress"
           @vdropzone-max-files-exceeded="onExceed"
           @vdropzone-success="onSuccess"
           @vdropzone-error="onError">
         </vue-dropzone>
       </div>
       <div class="upload__loader" v-if="loading">
-        <sync-loader color="#000"></sync-loader>
+          <sync-loader color="#000"></sync-loader>
+        <div class="upload__progress"> 
+
+          {{ progress !== 100 ? `${progress}%` : 'Processing file...'}}
+        </div>
       </div>
     </div>
   </div>
@@ -40,6 +45,7 @@ export default {
         previewsContainer: false,
       },
       loading: false,
+      progress: 0
     };
   },
   methods: {
@@ -69,6 +75,9 @@ export default {
         duration: 2000,
       });
     },
+    onProgress(file, progress) {
+      this.progress = parseInt(progress);
+    }
   },
   components: {
     vueDropzone: vue2Dropzone,
@@ -127,6 +136,11 @@ export default {
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
+    }
+
+    &__progress {
+      margin-top: 15px;
     }
   }
 
