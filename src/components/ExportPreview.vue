@@ -85,6 +85,10 @@ import copyIcon from '../assets/copy-solid.svg';
 import exportIcon from '../assets/file-export-solid.svg';
 import getBoundingRect from '../helpers/getBoundingRect';
 
+const EXCLUDED_FONTS = [
+  'AdobeInvisFont'
+];
+
 export default {
   name: 'ExportPreview',
   data() {
@@ -167,7 +171,8 @@ export default {
       });
 
       if (this.firstLayer.text) {
-        const uniqueFonts = [...new Set(this.firstLayer.text.font.names)].slice(0, 2);
+        const fonts = this.firstLayer.text.font.names.filter(font => EXCLUDED_FONTS.indexOf(font) === -1);
+        const uniqueFonts = [...new Set(fonts)].slice(0, 2);
 
         styles.push({
           key: 'font-family',
