@@ -16,7 +16,6 @@
       <div class="upload__loader" v-if="loading">
           <sync-loader color="#000"></sync-loader>
         <div class="upload__progress"> 
-
           {{ progress !== 100 ? `${progress}%` : 'Processing file...'}}
         </div>
       </div>
@@ -30,7 +29,7 @@ import vue2Dropzone from 'vue2-dropzone';
 import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 import SyncLoader from 'vue-spinner/src/SyncLoader';
 
-const MAX_FILE_SIZE_MB = 200;
+const MAX_FILE_SIZE_MB = 100;
 
 export default {
   name: 'Upload',
