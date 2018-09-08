@@ -1,4 +1,4 @@
-const PSD = require('PSD');
+const PSD = require('psd');
 const fs = require('fs');
 const express = require('express');
 const app = express();
