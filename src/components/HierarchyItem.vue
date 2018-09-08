@@ -25,7 +25,7 @@
             </div>
         </li>
 
-        <ul class="hierarchy-item__children" v-if="hasChildren > 0 && isOpened">
+        <ul class="hierarchy-item__children" v-if="hasChildren > 0 && opened">
             <hierarchy-item
               v-for="child in item.children"
               :key="child.id"
@@ -75,6 +75,10 @@ export default {
         this.$store.getters.currentSelectedLayers
           .map(layer => layer.id).indexOf(this.item.id) !== -1;
     },
+    opened() {
+      const allOpened = this.$store.getters.currentOpenedLayers;
+      return this.isOpened || allOpened.indexOf(this.item.id) !== -1;
+    }
   },
 };
 </script>

@@ -104,6 +104,30 @@ const saveToCanvas = (layers, commit) => new Promise((resolve, reject) => {
   });
 });
 
+const copy = obj => JSON.parse(JSON.stringify(obj));
+
+const getAllOpenedLayers = (selectedLayers, plainList, opened) => {
+  const prevLength = opened.length;
+
+  selectedLayers.forEach((layerId) => {
+    const parent = plainList
+      .find(maybeParent =>
+        maybeParent.children &&
+        maybeParent.children.length &&
+        maybeParent.children.find(child => child.id === layerId));
+
+    if (parent && opened.indexOf(parent.id) === -1) {
+      opened.push(parent.id);
+    }
+  });
+
+  const nextLength = opened.length;
+
+  if (nextLength !== prevLength) {
+    getAllOpenedLayers(copy(opened), plainList, opened);
+  }
+};
+
 const store = new Vuex.Store({
   state: {
     loading: false,
@@ -262,6 +286,17 @@ const store = new Vuex.Store({
       }
 
       return selectingLayers;
+    },
+    currentOpenedLayers: (state) => {
+      const selectedLayers = state.currentSelectedLayersId;
+      if (selectedLayers) {
+        const opened = [];
+        getAllOpenedLayers(selectedLayers, state.plainList, opened);
+        console.log(opened);
+        return opened;
+      }
+
+      return [];
     },
     imageData: state => state.mergedImageData,
   },
