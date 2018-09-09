@@ -278,14 +278,23 @@ export default {
         }
       } else {
         let diffY = 0;
+        let diffX = 0;
 
         if (direction === 'up') {
-          diffY = -50;
+          if (event.shiftKey) {
+            diffX = 50;
+          } else {
+            diffY = -50;
+          }
         } else {
-          diffY = 50;
+          if (event.shiftKey) {
+            diffX = -50;
+          } else {
+            diffY = 50;
+          }
         }
 
-        this.$store.commit('saveCanvasTranslate', { diffY });
+        this.$store.commit('saveCanvasTranslate', { diffX, diffY });
         this.$store.commit('saveCanvasPosition');
       }
     },
@@ -372,7 +381,16 @@ export default {
       document.body.removeChild(textarea);
     },
     isSelectingMultipleLayers() {
-      return (this.isMouseDown && this.mouseBeginCoords && this.mouseEndCoords);
+      let movingMouse = false;
+
+      if (this.mouseBeginCoords && this.mouseEndCoords) {
+        const diffX = this.mouseBeginCoords.x - this.mouseEndCoords.x;
+        const diffY = this.mouseBeginCoords.y - this.mouseEndCoords.y;
+
+        movingMouse = diffX !== 0 && diffY !== 0;
+      }
+
+      return this.isMouseDown && movingMouse;
     },
     loop() {
       this.drawCanvasCtx.clearRect(0, 0, this.$refs.drawCanvas.width, this.$refs.drawCanvas.height);

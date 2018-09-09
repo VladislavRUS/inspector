@@ -292,7 +292,6 @@ const store = new Vuex.Store({
       if (selectedLayers) {
         const opened = [];
         getAllOpenedLayers(selectedLayers, state.plainList, opened);
-        console.log(opened);
         return opened;
       }
 
@@ -325,7 +324,6 @@ const store = new Vuex.Store({
           state.loading = false;
         });
       }).catch((err) => {
-        console.log(err);
         state.loading = false;
       });
     },

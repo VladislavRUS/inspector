@@ -33,6 +33,15 @@
 
     <div class="export-preview__info-wrapper" v-if="firstLayer">
       <div class="export-preview__info">
+        <div class="export-preview__info-item" v-if="singleLayer">
+          <div class="export-preview__info-title">Blending mode:</div>
+          <div class="export-preview__info-values">
+            <div class="export-preview__info-value"
+                 @click="copy(`${firstLayer.blendingMode}`)">
+              {{firstLayer.blendingMode}}
+            </div>
+          </div>
+        </div>
         <div class="export-preview__info-item">
           <div class="export-preview__info-title">Size:</div>
           <div class="export-preview__info-values">
@@ -59,6 +68,7 @@
             </div>
           </div>
         </div>
+        
       </div>
 
       <div class="export-preview__styles" v-if="singleLayer">
@@ -174,6 +184,16 @@ export default {
         const fonts = this.firstLayer.text.font.names.filter(font => EXCLUDED_FONTS.indexOf(font) === -1);
         const uniqueFonts = [...new Set(fonts)].slice(0, 2);
 
+        let fontSize = this.firstLayer.text.font.sizes[0];
+        const transY = this.firstLayer.text.transform.yy;
+        const lineHeight = parseInt(Math.round((Math.round((fontSize * transY) * 100) * 0.01)));
+        fontSize = parseInt(Math.round((Math.round((fontSize * transY) * 100) * 0.01)));
+
+        styles.push({
+          key: 'line-height',
+          value: `${lineHeight}px`,
+        });
+
         styles.push({
           key: 'font-family',
           value: `${uniqueFonts.join(', ')}`,
@@ -184,9 +204,11 @@ export default {
           value: `${this.firstLayer.text.font.weights[0]}`,
         });
 
+        
+
         styles.push({
           key: 'font-size',
-          value: `${parseInt(this.firstLayer.text.font.sizes[0], 10)}px`,
+          value: `${fontSize}px`,
         });
 
         styles.push({

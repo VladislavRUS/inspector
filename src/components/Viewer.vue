@@ -1,5 +1,5 @@
 <template>
-  <div class="viewer">
+  <div class="viewer" v-if="tree">
     <div class="viewer__hierarchy">
       <hierarchy></hierarchy>
     </div>

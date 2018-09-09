@@ -1,12 +1,17 @@
 <template>
     <div class="header">
-      <router-link class="header__logo" to="/">Inspector</router-link>
+      <div class="header__logo" @click="reload">Inspector</div>
     </div>
 </template>
 
 <script>
 export default {
   name: 'Header',
+  methods: {
+    reload() {
+      window.location.reload();
+    }
+  },
   computed: {
     imageName() {
       let name = '';
@@ -44,6 +49,7 @@ export default {
       line-height: 50px;
       color: #000;
       text-decoration: none;
+      cursor: pointer;
     }
 
     &__title {
