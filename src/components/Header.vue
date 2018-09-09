@@ -1,7 +1,6 @@
 <template>
     <div class="header">
       <div class="header__logo" @click="reload">Inspector</div>
-      <div class="header__title">{{imageName}}</div>
     </div>
 </template>
 
@@ -12,18 +11,6 @@ export default {
     reload() {
       window.location.reload();
     }
-  },
-  computed: {
-    imageName() {
-      let name = '';
-
-      if (this.$store.state.imagePath) {
-        const lastSlashIdx = this.$store.state.imagePath.lastIndexOf('/');
-        name = this.$store.state.imagePath.substring(lastSlashIdx + 1);
-      }
-
-      return name;
-    },
   },
 };
 </script>
@@ -52,15 +39,6 @@ export default {
       color: #19233c;
       text-decoration: none;
       cursor: pointer;
-    }
-
-    &__title {
-      position: absolute;
-      right: 20px;
-      line-height: 50px;
-      font-size: 16px;
-      color: #19233c;
-      font-weight: 400;
     }
   }
 </style>
