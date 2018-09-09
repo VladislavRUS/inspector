@@ -3,9 +3,9 @@
         <li class="hierarchy-item"
             @click="onClick"
             v-bind:style="styleObject"
-            :class="{'_selected': isSelected}">
+            :class="{'_selected': isSelected, '_opened': opened}">
             <div class="hierarchy-item__arrow"
-                 :class="{'_opened': isOpened, '_visible': hasChildren}">
+                 :class="{'_opened': opened, '_visible': hasChildren}">
                 <img src="../assets/angle-right-solid.svg">
             </div>
             <div class="hierarchy-item__img">
@@ -50,7 +50,13 @@ export default {
   },
   methods: {
     toggleOpened() {
-      this.isOpened = !this.isOpened;
+      const nextOpened = !this.isOpened;
+
+      if (nextOpened === false) {
+        this.$store.commit('removeAllAncestors', {id: this.item.id});
+      }
+
+      this.isOpened = nextOpened;
     },
     onClick(event) {
       if (this.item.children) {
@@ -92,11 +98,12 @@ export default {
   font-size: 14px;
   user-select: none;
   overflow: hidden;
+  opacity: 0.7;
 
     &:hover,
     &._selected {
       font-weight: bold;
-      background-color: #F0F0F0;
+      opacity: 1;
     }
 
     &__arrow {
@@ -128,7 +135,7 @@ export default {
         padding-top: 5px;
         padding-left: 15px;
         padding-bottom: 4px;
-        color: #2d2d2d;
+        color: #000;
         white-space: nowrap;
         font-size: 12px;
         overflow: hidden;

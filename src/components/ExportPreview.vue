@@ -16,7 +16,7 @@
     </div>
 
     <div class="export-preview__loader" v-if="loading">
-        <fade-loader color="#000"></fade-loader>
+        <fade-loader color="#2d2d2d"></fade-loader>
     </div>
 
     <div v-if="!loading && imageData">
@@ -305,8 +305,6 @@ export default {
 
     &__styles {
       margin: 10px;
-      background-color: #eaeaea;
-      border: 1px solid #bababa;
 
       &-title {
         padding-left: 20px;
@@ -318,6 +316,7 @@ export default {
       &-table {
         display: flex;
         flex-direction: column;
+        background-color: #D2D2D2;
       }
 
       &-row {
@@ -341,7 +340,7 @@ export default {
         }
 
         &._value {
-          color: #6c6c6c;
+          color: #000;
           text-align: right;
           word-break: break-word;
         }
@@ -380,12 +379,14 @@ export default {
       &-title {
         font-weight: bold;
         font-size: 14px;
+        color: #000;
       }
 
       &-value {
         font-size: 14px;
         font-weight: 300;
         cursor: pointer;
+        color: #000;
 
         &:hover {
           text-decoration: underline;
@@ -409,12 +410,12 @@ export default {
         padding: 10px;
         width: 100%;
         min-height: 100px;
-        color: black;
+        color: #000;
+        border: none;
         font-size: 16px;
         box-sizing: border-box;
         outline: none;
-        background-color: #eaeaea;
-        border: 1px solid #bababa;
+        background-color: #D2D2D2;
         resize: none;
       }
     }
@@ -430,7 +431,6 @@ export default {
       height: 250px;
       background-image: url('../assets/transparent-bg.png');
       box-sizing: border-box;
-      border: 1px solid #bababa;
 
       &:after {
         content: "";
@@ -477,15 +477,14 @@ export default {
         padding: 7px 20px;
         background-color: #000;
         outline: none;
-        border: 1px solid #606060;
+        border: none;
         color: #fff;
         cursor: pointer;
+        font-weight: 500;
         text-decoration: none;
         font-size: 12px;
-        font-weight: 300;
-        text-transform: uppercase;
         line-height: 100%;
-
+        
         & img {
           margin-left: auto;
           padding-left: 10px;

@@ -69,7 +69,7 @@ export default {
 
 <style scoped lang="less">
     .instruments {
-        background-color: white;
+        background: transparent;
         height: 50px;
 
         &__list {

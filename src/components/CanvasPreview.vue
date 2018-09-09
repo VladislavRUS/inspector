@@ -685,7 +685,6 @@ export default {
       position: relative;
       width: 100%;
       height: 100%;
-      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
       transition: transform .2s ease;
       transform-origin: center top;
     }

@@ -31,12 +31,13 @@ export default {
 <style scoped lang="less">
 
     .hierarchy {
-        background-color: #FFF;
         width: 250px;
         height: 100%;
         padding-top: 10px;
         padding-bottom: 10px;
         overflow-y: auto;
+        box-sizing: border-box;
+        background-color: #fff;
 
         &__list {
             margin: 0;

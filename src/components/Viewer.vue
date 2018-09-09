@@ -70,27 +70,30 @@ export default {
 
     &__hierarchy {
       position: absolute;
-      left: 0;
-      top: 0px;
-      bottom: 0;
-      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
       z-index: 10;
     }
 
     &__canvas-preview {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 250px;
-      right: 250px;
+      top: 10px;
+      bottom: 10px;
+      left: 270px;
+      right: 270px;
+      box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
     }
 
     &__export-preview {
       position: absolute;
-      top: 0px;
-      bottom: 0;
-      right: 0;
-      box-shadow: 1px 0 10px -2px rgba(0, 0, 0, 0.3);
+      top: 10px;
+      bottom: 10px;
+      right: 10px;
+      box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
       z-index: 10;
     }
   }

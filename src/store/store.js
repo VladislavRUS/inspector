@@ -128,6 +128,15 @@ const getAllOpenedLayers = (selectedLayers, plainList, opened) => {
   }
 };
 
+const getAllAncestors = (id, plainList, ancestors) => {
+  ancestors.push(id);
+  const item = plainList.find(layer => layer.id === id);
+
+  if (item.children && item.children.length) {
+    item.children.forEach(child => getAllAncestors(child.id, plainList, ancestors));
+  }
+};
+
 const store = new Vuex.Store({
   state: {
     loading: false,
@@ -226,6 +235,11 @@ const store = new Vuex.Store({
     },
     saveMergedImageData(state, { data }) {
       state.mergedImageData = data;
+    },
+    removeAllAncestors(state, { id }) {
+      const ancestors = [];
+      getAllAncestors(id, state.plainList, ancestors);
+      state.currentSelectedLayersId = state.currentSelectedLayersId.filter(id => ancestors.indexOf(id) === -1);
     },
   },
   getters: {

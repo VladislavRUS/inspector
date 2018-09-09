@@ -23,8 +23,8 @@ export default {
   computed: {
     styleObject() {
       return {
-        left: `${this.x}px`,
-        top: `${this.y}px`,
+        left: `${this.x + 10}px`,
+        top: `${this.y - 110}px`,
         visibility: this.overCanvas ? 'visible' : 'hidden',
       };
     },
