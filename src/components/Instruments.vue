@@ -7,7 +7,7 @@
             v-bind:title="item.title"
             v-bind:class="{'_selected': isCurrentMode(item.mode)}"
             @click="item.onClick ? item.onClick() : setMode(item.mode)">
-          <img v-bind:src="item.icon">
+          <component :is="item.component" :active="isCurrentMode(item.mode)"/>
         </li>
       </ul>
     </div>
@@ -23,34 +23,47 @@ import redoIcon from '../assets/redo-alt-solid.svg';
 
 import * as Modes from '../constants/modes';
 
+import MousePointer from './icons/MousePointer';
+import Ruler from './icons/Ruler';
+import ColorPicker from './icons/ColorPicker';
+import Move from './icons/Move';
+import Reset from './icons/Reset';
+
 export default {
   name: 'Instruments',
+  components: {
+    MousePointer,
+    Ruler,
+    ColorPicker,
+    Move,
+    Reset
+  },
   data() {
     return {
       instruments: [
         {
           title: 'Select',
-          icon: selectIcon,
+          component: 'MousePointer',
           mode: Modes.SELECT_MODE,
         },
         {
           title: 'Measure',
-          icon: rulerIcon,
+          component: 'Ruler',
           mode: Modes.MEASURE_MODE,
         },
         {
           title: 'Color picker',
-          icon: colorPickerIcon,
+          component: 'ColorPicker',
           mode: Modes.COLOR_PICKER_MODE,
         },
         {
           title: 'Move',
-          icon: moveIcon,
+          component: 'Move',
           mode: Modes.MOVE_MODE,
         },
         {
           title: 'Reset transformations',
-          icon: redoIcon,
+          component: 'Reset',
           onClick: () => this.$store.commit('reset'),
         },
       ],
@@ -97,7 +110,7 @@ export default {
               right: 0;
               bottom: -3px;
               height: 2px;
-              background-color: #000;
+              background-color: #19233c;
               transform: translateY(10px);
               opacity: 0;
             }

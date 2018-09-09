@@ -42,7 +42,7 @@ export default {
   },
   computed: {
     isColorPickerMode() {
-      return this.$store.state.mode === Modes.COLOR_PICKER_MODE
+      return this.$store.state.mode === Modes.COLOR_PICKER_MODE;
     },
     appropriateMode() {
       return this.$store.state.mode === Modes.SELECT_MODE ||
@@ -73,7 +73,7 @@ export default {
       left: 10px;
       top: 10px;
       bottom: 10px;
-      box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
+      border: 1px solid #e5e6eb;
       overflow: hidden;
       z-index: 10;
     }
@@ -84,7 +84,7 @@ export default {
       bottom: 10px;
       left: 270px;
       right: 270px;
-      box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
+      border: 1px solid #e5e6eb;
     }
 
     &__export-preview {
@@ -92,7 +92,7 @@ export default {
       top: 10px;
       bottom: 10px;
       right: 10px;
-      box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
+      border: 1px solid #e5e6eb;
       overflow: hidden;
       z-index: 10;
     }

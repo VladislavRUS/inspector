@@ -98,7 +98,6 @@ export default {
   font-size: 14px;
   user-select: none;
   overflow: hidden;
-  opacity: 0.7;
 
     &:hover,
     &._selected {
@@ -135,7 +134,7 @@ export default {
         padding-top: 5px;
         padding-left: 15px;
         padding-bottom: 4px;
-        color: #000;
+        color: #19233c;
         white-space: nowrap;
         font-size: 12px;
         overflow: hidden;
@@ -147,7 +146,6 @@ export default {
         margin-right: 10px;
         width: 15px;
         height: 15px;
-        opacity: 0.3;
     }
 
     &__img {

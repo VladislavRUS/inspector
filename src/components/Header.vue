@@ -36,8 +36,8 @@ export default {
     left: 0px;
     display: flex;
     justify-content: flex-start;
-    background: #fff;;
-    box-shadow: 0 0 7px -2px rgba(0, 0, 0, 0.4);
+    background-color: #fff;
+    border-bottom: 1px solid #e5e6eb;
     height: 50px;
     z-index: 100;
 
@@ -49,7 +49,7 @@ export default {
       letter-spacing: 1.2px;
       font-weight: 400;
       line-height: 50px;
-      color: #000;
+      color: #19233c;
       text-decoration: none;
       cursor: pointer;
     }
@@ -59,7 +59,7 @@ export default {
       right: 20px;
       line-height: 50px;
       font-size: 16px;
-      color: #000;
+      color: #19233c;
       font-weight: 400;
     }
   }

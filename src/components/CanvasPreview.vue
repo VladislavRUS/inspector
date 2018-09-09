@@ -676,6 +676,7 @@ export default {
     bottom: 0;
     overflow: hidden;
     box-sizing: border-box;
+    background-color: #fff;
   }
 
   .canvas-preview {
@@ -687,7 +688,7 @@ export default {
       height: 100%;
       transition: transform .2s ease;
       transform-origin: center top;
-      box-shadow: 0 0 10px -2px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
     }
 
     & ._color-picker {

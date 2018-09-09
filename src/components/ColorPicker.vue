@@ -6,8 +6,6 @@
 </template>
 
 <script>
-import * as Modes from '../constants/modes';
-
 export default {
   name: 'ColorPicker',
   data() {

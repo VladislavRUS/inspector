@@ -14,7 +14,7 @@
         </vue-dropzone>
       </div>
       <div class="upload__loader" v-if="loading">
-          <sync-loader color="#000"></sync-loader>
+          <sync-loader color="#19233c"></sync-loader>
         <div class="upload__progress"> 
           {{ progress !== 100 ? `${progress}%` : 'Processing file...'}}
         </div>
@@ -91,8 +91,8 @@ export default {
     height: 100%;
     padding: 200px;
     background-color: transparent;
-    border: 2px dashed #2d2d2d;
-    color: #2d2d2d;
+    border: 2px dashed #19233c;
+    color: #19233c;
     box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.3);
 
     &:hover {

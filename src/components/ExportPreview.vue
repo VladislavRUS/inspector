@@ -1,5 +1,5 @@
 <template>
-  <div class="export-preview">
+  <div class="export-preview" v-if="layersNumber > 0">
     <div class="export-preview__text" v-if="showText">
       <textarea
         class="export-preview__text-value"
@@ -9,14 +9,18 @@
       <div class="export-preview__export">
         <button class="export-preview__export-btn"
                 @click="copy(firstLayer.text.value)">
-          Copy text
-          <img v-bind:src="copyIcon">
+          <div class="export-preview__export-btn-text">
+            Copy text
+          </div>
+          <div class="export-preview__export-btn-icon">
+            <img v-bind:src="copyIcon">
+          </div>
         </button>
       </div>
     </div>
 
     <div class="export-preview__loader" v-if="loading">
-        <fade-loader color="#2d2d2d"></fade-loader>
+        <fade-loader color="#19233c"></fade-loader>
     </div>
 
     <div v-if="!loading && imageData">
@@ -25,8 +29,12 @@
       </div>
       <div class="export-preview__export">
         <a class="export-preview__export-btn" v-bind:href="imageSrc" v-bind:download="name">
-          Export ({{layersNumber}})
-          <img v-bind:src="exportIcon">
+          <div class="export-preview__export-btn-text">
+            Export ({{layersNumber}})
+          </div>
+          <div class="export-preview__export-btn-icon">
+            <img v-bind:src="exportIcon">
+          </div>
         </a>
       </div>
     </div>
@@ -316,7 +324,9 @@ export default {
       &-table {
         display: flex;
         flex-direction: column;
-        background-color: #D2D2D2;
+        background-color: #D2D2D2;  
+        border: 1px solid #e5e6eb;
+        background-color: #f5f6fa;
       }
 
       &-row {
@@ -335,12 +345,12 @@ export default {
         align-items: center;
 
         &._key {
-          color: #000;
+          color: #19233c;
           font-weight: bold;
         }
 
         &._value {
-          color: #000;
+          color: #19233c;
           text-align: right;
           word-break: break-word;
         }
@@ -379,14 +389,14 @@ export default {
       &-title {
         font-weight: bold;
         font-size: 14px;
-        color: #000;
+        color: #19233c;
       }
 
       &-value {
         font-size: 14px;
         font-weight: 300;
         cursor: pointer;
-        color: #000;
+        color: #19233c;
 
         &:hover {
           text-decoration: underline;
@@ -410,12 +420,12 @@ export default {
         padding: 10px;
         width: 100%;
         min-height: 100px;
-        color: #000;
-        border: none;
+        color: #19233c;
+        border: 1px solid #e5e6eb;
         font-size: 16px;
         box-sizing: border-box;
         outline: none;
-        background-color: #D2D2D2;
+        background-color: #f5f6fa;
         resize: none;
       }
     }
@@ -431,6 +441,7 @@ export default {
       height: 250px;
       background-image: url('../assets/transparent-bg.png');
       box-sizing: border-box;
+      border: 1px solid #e5e6eb;
 
       &:after {
         content: "";
@@ -474,22 +485,41 @@ export default {
       &-btn {
         display: flex;
         align-items: center;
-        padding: 7px 20px;
-        background-color: #000;
+        padding: 3px 10px;
+        background-color: #4c84ff;
         outline: none;
         border: none;
+        border-radius: 25px;
         color: #fff;
+        text-transform: uppercase;
         cursor: pointer;
         font-weight: 500;
         text-decoration: none;
         font-size: 12px;
         line-height: 100%;
         
-        & img {
+        &-text {
+          margin-right: 20px;
+          margin-left: 10px;
+        }
+
+        &-icon {
+          position: relative;
+          left: 7px;
           margin-left: auto;
-          padding-left: 10px;
-          width: 15px;
-          height: 15px;
+          padding: 8px;
+          width: 12px;
+          height: 12px;
+          background-color: #2d69eb;
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          & img {
+            min-width: 100%;
+            min-height: 100%;
+          }
         }
 
         &:hover {
