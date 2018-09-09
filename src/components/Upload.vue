@@ -90,13 +90,13 @@ export default {
   #dropzone {
     height: 100%;
     padding: 200px;
-    background-color: transparent;
+    background-color: #fff;
     border: 2px dashed #19233c;
     color: #19233c;
-    box-shadow: 0 1px 10px -2px rgba(0, 0, 0, 0.3);
+    transition: box-shadow .2s ease;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
     }
   }
 
