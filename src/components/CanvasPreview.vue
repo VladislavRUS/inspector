@@ -687,6 +687,7 @@ export default {
       height: 100%;
       transition: transform .2s ease;
       transform-origin: center top;
+      box-shadow: 0 0 10px -2px rgba(0, 0, 0, 0.3);
     }
 
     & ._color-picker {
