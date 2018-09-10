@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     toggleOpened() {
-      const nextOpened = !this.isOpened;
+      const nextOpened = !this.opened;
 
       if (nextOpened === false) {
         this.$store.commit('removeAllAncestors', {id: this.item.id});

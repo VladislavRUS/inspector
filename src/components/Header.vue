@@ -1,17 +1,12 @@
 <template>
     <div class="header">
-      <div class="header__logo" @click="reload">Inspector</div>
+      <router-link to="/" class="header__logo">Inspector</router-link>
     </div>
 </template>
 
 <script>
 export default {
   name: 'Header',
-  methods: {
-    reload() {
-      window.location.reload();
-    }
-  },
 };
 </script>
 

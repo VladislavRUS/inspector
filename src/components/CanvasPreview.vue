@@ -27,8 +27,6 @@
 <script>
 /* eslint-disable no-param-reassign,no-bitwise */
 
-
-import ColorPicker from './ColorPicker';
 import MeasureValues from './MeasureValues';
 import * as Modes from '../constants/modes';
 import getBoundingRect from '../helpers/getBoundingRect';
@@ -74,13 +72,13 @@ function getCurrentLayer(plainList, mousePosition) {
 
 export default {
   name: 'CanvasPreview',
-  components: { ColorPicker, MeasureValues },
+  components: { MeasureValues },
   props: ['imagePath', 'width', 'height'],
   data() {
     return {
       colorPickerSize: {
-        width: 25,
-        height: 25,
+        width: 20,
+        height: 20,
       },
       previewCanvasCtx: null,
       drawCanvasCtx: null,

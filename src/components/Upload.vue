@@ -93,10 +93,10 @@ export default {
     background-color: #fff;
     border: 2px dashed #19233c;
     color: #19233c;
-    transition: box-shadow .2s ease;
+    transition: background-color .2s ease;
 
     &:hover {
-      box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+      background-color: rgba(0, 0, 0, 0.05);
     }
   }
 

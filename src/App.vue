@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <Header/>
+    <Header v-if="showHeader"/>
     <router-view/>
     <portal-target name="color-picker"></portal-target>
   </div>
@@ -12,6 +12,11 @@ import Header from './components/Header';
 export default {
   name: 'App',
   components: { Header },
+  computed: {
+    showHeader() {
+      return this.$route.name !== 'Home';
+    }
+  }
 };
 </script>
 
