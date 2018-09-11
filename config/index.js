@@ -9,7 +9,7 @@ module.exports = {
 
     // Paths
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/inspector',
+    assetsPublicPath: '/inspector/',
     proxyTable: {
       '/inspector/api': {
         target: 'http://localhost:4300',

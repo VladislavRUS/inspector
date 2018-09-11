@@ -31,16 +31,11 @@
     <div class="upload__try">
       <div class="upload__try-info">
         <div class="upload__try-info-title">
-          Try inspecting sample file
+          Try inspecting sample file,
+          <a href="/inspector/static/files/sample.psd" download="sample.psd" class="upload__try-info-link">click here</a> to download
         </div>
         <div class="upload__try-info-subtitle">
-          Get exported layers, inspect size and measure distances
-        </div>
-      </div>
-      <div class="upload__try-link-wrapper">
-        <a href="#" class="upload__try-link">Download</a>
-        <div class="upload__try-link-download">
-          <img src="../assets/download.svg"/>
+          Export layers, inspect sizes and measure distances
         </div>
       </div>
     </div>
@@ -53,7 +48,7 @@ import vue2Dropzone from 'vue2-dropzone';
 import 'vue2-dropzone/dist/vue2Dropzone.min.css';
 import SyncLoader from 'vue-spinner/src/SyncLoader';
 
-const MAX_FILE_SIZE_MB = 200;
+const MAX_FILE_SIZE_MB = 100;
 
 export default {
   name: 'Upload',
@@ -220,7 +215,7 @@ export default {
 
         &-title {
           margin-bottom: 10px;
-          font-size: 24px;
+          font-size: 22px;
           color: #fff;
           font-weight: 400;
 
@@ -230,7 +225,7 @@ export default {
         }
 
         &-subtitle {
-          font-size: 18px;
+          font-size: 16px;
           color: #fff;
           font-weight: 300;
 
@@ -239,33 +234,10 @@ export default {
           }
         }
 
-      }
-      &-link {
-        color: #fff;
-        font-size: 18px;
-        text-decoration: none;
-        font-weight: 400;
-        margin-right: 20px;
-
-        @media screen and (max-width: 960px) {
-          font-size: 18px;
+        &-link {
+          color: #fff;
         }
-
-        &:hover {
-          text-decoration: underline;
-        }
-
-        &-wrapper {
-          padding: 0 10px;
-          margin-left: auto;
-          display: flex;
-        }
-
-        &-download {
-          width: 20px;
-          height: 20px;
-        }
-      }
+     }
     }
   }
 

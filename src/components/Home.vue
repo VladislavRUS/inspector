@@ -90,7 +90,7 @@ export default {
   }
 
   &__header {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     max-width: 700px;
     font-size: 50px;
     font-weight: 300;
@@ -108,7 +108,7 @@ export default {
   }
 
   &__subheader {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     font-size: 24px;
     color: #ffb8f6;
     text-align: center;
@@ -118,7 +118,7 @@ export default {
   }
 
   &__image {
-    max-width: 600px;
+    max-width: 700px;
 
     @media screen and (max-width: 960px) {
       max-width: 400px;
