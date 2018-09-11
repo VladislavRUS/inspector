@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-      <router-link to="/" class="header__logo">Inspector</router-link>
+      <router-link to="/" class="header__title">Inspector</router-link>
     </div>
 </template>
 
@@ -23,15 +23,15 @@ export default {
     height: 50px;
     z-index: 100;
 
-    &__logo {
+    &__title {
       padding-left: 30px;
       width: 50px;
       height: 50px;
-      font-size: 24px;
+      font-size: 36px;
       letter-spacing: 1.2px;
       font-weight: 400;
       line-height: 50px;
-      color: #19233c;
+      color: #2d2d2d;
       text-decoration: none;
       cursor: pointer;
     }

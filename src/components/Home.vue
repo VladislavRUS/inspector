@@ -26,14 +26,14 @@
 
 <script>
 export default {
-  name: "Home"
+  name: 'Home',
 };
 </script>
 
 <style scoped lang="less">
 .wrapper {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: linear-gradient(
     135deg,
     rgba(60, 8, 118, 0.8) 0%,
@@ -41,8 +41,9 @@ export default {
   );
 }
 .container {
-  max-width: 1200px;
   margin: 0 auto;
+  max-width: 1200px;
+  height: 100%;
 }
 
 .header {
@@ -80,9 +81,13 @@ export default {
   padding: 20px;
   margin-top: 50px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
+
+  @media screen and (max-width: 320px) {
+    margin-top: 10px;
+  }
 
   &__header {
     margin-bottom: 20px;
@@ -95,6 +100,10 @@ export default {
 
     @media screen and (max-width: 960px) {
       font-size: 34px;
+    }
+
+    @media screen and (max-width: 320px) {
+      font-size: 18px;
     }
   }
 

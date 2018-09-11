@@ -15,8 +15,8 @@ export default {
   computed: {
     showHeader() {
       return this.$route.name !== 'Home';
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -24,6 +24,6 @@ export default {
   .app {
     width: 100%;
     height: 100%;
-    background: #f5f6fa;
+    background-color: rgba(45, 45, 45, 0.05);
   }
 </style>

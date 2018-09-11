@@ -134,7 +134,7 @@ export default {
         padding-top: 5px;
         padding-left: 15px;
         padding-bottom: 4px;
-        color: #19233c;
+        color: #2d2d2d;
         white-space: nowrap;
         font-size: 12px;
         overflow: hidden;

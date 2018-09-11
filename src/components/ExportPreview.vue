@@ -20,7 +20,7 @@
     </div>
 
     <div class="export-preview__loader" v-if="loading">
-        <fade-loader color="#19233c"></fade-loader>
+        <fade-loader color="#2d2d2d"></fade-loader>
     </div>
 
     <div v-if="!loading && imageData">
@@ -76,7 +76,7 @@
             </div>
           </div>
         </div>
-        
+
       </div>
 
       <div class="export-preview__styles" v-if="singleLayer">
@@ -104,7 +104,7 @@ import exportIcon from '../assets/file-export-solid.svg';
 import getBoundingRect from '../helpers/getBoundingRect';
 
 const EXCLUDED_FONTS = [
-  'AdobeInvisFont'
+  'AdobeInvisFont',
 ];
 
 export default {
@@ -167,7 +167,7 @@ export default {
         this.$store.getters.currentSelectedLayers[0];
     },
     name() {
-      return this.$store.getters.currentSelectedLayers && (this.$store.getters.currentSelectedLayers.map(layer => layer.name).join('-') + '.png') || '';
+      return this.$store.getters.currentSelectedLayers && (`${this.$store.getters.currentSelectedLayers.map(layer => layer.name).join('-')}.png`) || '';
     },
     imageData() {
       return this.$store.getters.imageData;
@@ -212,7 +212,6 @@ export default {
           value: `${this.firstLayer.text.font.weights[0]}`,
         });
 
-        
 
         styles.push({
           key: 'font-size',
@@ -324,9 +323,8 @@ export default {
       &-table {
         display: flex;
         flex-direction: column;
-        background-color: #D2D2D2;  
+        background-color: rgba(45, 45, 45, 0.05);
         border: 1px solid #e5e6eb;
-        background-color: #f5f6fa;
       }
 
       &-row {
@@ -345,12 +343,12 @@ export default {
         align-items: center;
 
         &._key {
-          color: #19233c;
+          color: #2d2d2d;
           font-weight: bold;
         }
 
         &._value {
-          color: #19233c;
+          color: #2d2d2d;
           text-align: right;
           word-break: break-word;
         }
@@ -389,14 +387,14 @@ export default {
       &-title {
         font-weight: bold;
         font-size: 14px;
-        color: #19233c;
+        color: #2d2d2d;
       }
 
       &-value {
         font-size: 14px;
         font-weight: 300;
         cursor: pointer;
-        color: #19233c;
+        color: #2d2d2d;
 
         &:hover {
           text-decoration: underline;
@@ -420,12 +418,12 @@ export default {
         padding: 10px;
         width: 100%;
         min-height: 100px;
-        color: #19233c;
+        color: #2d2d2d;
         border: 1px solid #e5e6eb;
         font-size: 16px;
         box-sizing: border-box;
         outline: none;
-        background-color: #f5f6fa;
+        background-color: rgba(45, 45, 45, 0.05);
         resize: none;
       }
     }
@@ -486,7 +484,7 @@ export default {
         display: flex;
         align-items: center;
         padding: 3px 10px;
-        background-color: #4c84ff;
+        background-color: #2d2d2d;
         outline: none;
         border: none;
         border-radius: 25px;
@@ -497,7 +495,7 @@ export default {
         text-decoration: none;
         font-size: 12px;
         line-height: 100%;
-        
+
         &-text {
           margin-right: 20px;
           margin-left: 10px;
@@ -510,7 +508,7 @@ export default {
           padding: 8px;
           width: 12px;
           height: 12px;
-          background-color: #2d69eb;
+          background-color: #161616;
           border-radius: 50%;
           display: flex;
           justify-content: center;

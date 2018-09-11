@@ -110,7 +110,7 @@ export default {
               right: 0;
               bottom: -3px;
               height: 2px;
-              background-color: #19233c;
+              background-color: #2d2d2d;
               transform: translateY(10px);
               opacity: 0;
             }
